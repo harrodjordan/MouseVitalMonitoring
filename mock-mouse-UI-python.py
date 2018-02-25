@@ -42,7 +42,9 @@ class MainWindow(QMainWindow):
 	def initUI(self):  
 
 		lcd = QLCDNumber(self)
-		label = QLabel('Breathing Rate (breaths/min)')
+		#label = QLabel('Breathing Rate (breaths/min)')
+
+		#PLOT BOTH WAVEFORMS ON THE BOTTOM AND NUMBERS ON THE TOP (BR LEFT, HR RIGHT)
 
 		breathing = QPixmap("breathing.png")
 
@@ -61,12 +63,9 @@ class MainWindow(QMainWindow):
 
 		tlbox = QHBoxLayout(self)
 
-		tlbox.addWidget(label, alignment=(Qt.AlignTop | Qt.AlignLeft))
+		#tlbox.addWidget(label, alignment=(Qt.AlignTop | Qt.AlignLeft))
 
 		tlbox.addWidget(lcd)
-	
-		
-		
 
 		# add label for breathing rate 
 
