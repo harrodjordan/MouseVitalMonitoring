@@ -38,13 +38,14 @@ class MainWindow(QMainWindow):
 
 		self.initUI()
 
-
 	def initUI(self):  
 
-		lcd = QLCDNumber(self)
-		#label = QLabel('Breathing Rate (breaths/min)')
+		fileName='/Users/jordanharrod/Desktop/oximeter_raw_data.csv'
 
-		#PLOT BOTH WAVEFORMS ON THE BOTTOM AND NUMBERS ON THE TOP (BR LEFT, HR RIGHT)
+		lcd = QLCDNumber(self)
+		lcd2 = QLCDNumber(self)
+		BRlabel = QLabel('Breathing Rate (breaths/min)')
+		HRlabel = QLabel('Heart Rate (beats/min)')
 
 		breathing = QPixmap("breathing.png")
 
@@ -63,7 +64,7 @@ class MainWindow(QMainWindow):
 
 		tlbox = QHBoxLayout(self)
 
-		#tlbox.addWidget(label, alignment=(Qt.AlignTop | Qt.AlignLeft))
+		#add label for HR 
 
 		tlbox.addWidget(lcd)
 
@@ -75,7 +76,7 @@ class MainWindow(QMainWindow):
 		topleft.setLayout(tlbox)
 
 		trbox = QHBoxLayout(self)
-		trbox.addWidget(lbl2)
+		trbox.addWidget(lcd2)
 
 		# add fake graph for breathing curve
  
@@ -103,7 +104,9 @@ class MainWindow(QMainWindow):
 		splitter2.addWidget(bottom)
 
 		box.addWidget(splitter2)
-		wid.setLayout(box)       
+		wid.setLayout(box)      
+
+		#Making the menu bar  
 	
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu('File')
@@ -114,12 +117,13 @@ class MainWindow(QMainWindow):
 	
 		impMenu = QMenu('Import', self)
 		impAct = QAction('Import data', self) 
+		impAct.triggered.connect(self.loadCsv)
 		impMenu.addAction(impAct)
 
 		expMenu = QMenu('Export', self)
 		expAct = QAction('Export data', self) 
+		expAct.triggered.connect(self.writeCsv)
 		expMenu.addAction(expAct)
-		
 		
 		newAct = QAction('New', self)        
 		
@@ -127,11 +131,15 @@ class MainWindow(QMainWindow):
 		fileMenu.addMenu(impMenu)
 		fileMenu.addMenu(expMenu)
 
+		#Making the status bar 
+
 		viewStatAct = QAction('View statusbar', self, checkable=True)
 		viewStatAct.setStatusTip('View statusbar')
 		viewStatAct.setChecked(True)
 		viewStatAct.triggered.connect(self.toggleMenu)
 		viewMenu.addAction(viewStatAct)
+
+		#Making the toolbar 
 
 		exitAct = QAction(QIcon('exit24.png'), 'Exit', self)
 		exitAct.setShortcut('Ctrl+Q')
@@ -140,10 +148,8 @@ class MainWindow(QMainWindow):
 		self.toolbar = self.addToolBar('Exit')
 		self.toolbar.addAction(exitAct)
 
+		#Setting window size and showing
 
-   
-		
-		
 		self.setGeometry(200, 200, 1200, 1200)
 		self.setWindowTitle('Rodent Vitals Monitoring System')    
 		self.show()
@@ -156,6 +162,43 @@ class MainWindow(QMainWindow):
 			self.statusbar.show()
 		else:
 			self.statusbar.hide()
+
+	# update import export functionality 
+
+	def loadCsv(self, fileName):
+
+		with open(fileName, "rb") as fileInput:
+
+			for row in csv.reader(fileInput): 
+
+				items = [
+					QtGui.QStandardItem(field)
+					for field in row
+				]
+				self.model.appendRow(items)
+
+
+	def writeCsv(self, fileName):
+
+		with open(fileName, "wb") as fileOutput:
+
+			writer = csv.writer(fileOutput)
+
+			for rowNumber in range(self.model.rowCount()):
+				fields = [
+					self.model.data(
+						self.model.index(rowNumber, columnNumber),
+						QtCore.Qt.DisplayRole
+					)
+					for columnNumber in range(self.model.columnCount())
+				]
+
+				writer.writerow(fields)
+
+
+
+
+
 
 	
 		
