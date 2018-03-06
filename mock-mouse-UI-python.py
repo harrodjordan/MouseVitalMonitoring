@@ -28,23 +28,23 @@ import random
 import argparse
 import sys
 import csv
-
-import tkinter
+import tkinter as tk
+from tkinter import filedialog
 
 # use patient monitoring systems as a design model 
 
 # TO DO BACKLOG - SPRINT 3
-# set graph geometry to maintian size consistancy across instantiations 
-# update the toolbar - import
-# update the toolbar - export 
-# data graphing
 # how to connect pi to code
 # connecting pi to code 
 # display on touch screen 
 # look into sensor integration 
 # look into data reading 
 
-# TO-DO 3.6.18
+# TO-DO 3.7.18
+# set graph geometry to maintian size consistancy across instantiations 
+# update the toolbar - import
+# update the toolbar - export 
+# data graphing
 
 
 class MainWindow(QMainWindow):
@@ -262,9 +262,14 @@ class MainWindow(QMainWindow):
 		else:
 			self.statusbar.hide()
 
-	# update import export functionality 
+	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
 
 	def loadCsv(self, fileName):
+
+		root = tk.Tk()
+		root.withdraw()
+
+		fileName = filedialog.askopenfilename(filetypes=(("csv files","*.csv"), ("xls files","*.xls"), ("xlsx files","*.xlsx"), ("txt files","*.txt"), ("all files","*.*")))
 
 		with open(fileName, "rb") as fileInput:
 
@@ -276,7 +281,12 @@ class MainWindow(QMainWindow):
 				]
 				self.model.appendRow(items)
 
-		self.graph.plot(PlotDataItem(xValues, yValues))
+		time = self.model[columns]
+		HR = self.model[columns]
+		BR = self.model[columns]
+		Temp = self.model[columns]
+
+		return [time, HR, BR, Temp] # AND THEN PASS TO DATA ANALYSIS AND REGRAPH 
 
 
 	def writeCsv(self, fileName):
@@ -323,6 +333,7 @@ class PlotCanvas(FigureCanvas):
 		fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
 		self.title = title
+
 		self.axes = fig.add_subplot(111)
  
 		FigureCanvas.__init__(self, fig)
@@ -332,14 +343,18 @@ class PlotCanvas(FigureCanvas):
 				QtWidgets.QSizePolicy.Expanding,
 				QtWidgets.QSizePolicy.Expanding)
 		FigureCanvas.updateGeometry(self)
+		fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
 		self.plot()
  
  
-	def plot(self, ):
+	def plot(self, data):
 		data = [random.random() for i in range(25)]
 		ax = self.figure.add_subplot(111)
 		ax.plot(data, self.color)
 		ax.set_title(self.title)
+		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
+		ytext = ax.set_ylabel('Volts (mV)')
+		ax.autoscale(enable=True, axis='x', tight=True)
 		self.draw()
 
 
