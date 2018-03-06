@@ -20,7 +20,6 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPu
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pyqtgraph as pg 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 #import PIL.Image
@@ -46,8 +45,6 @@ import tkinter
 # look into data reading 
 
 # TO-DO 3.6.18
-# incorporate matplotlub for graphing 
-# look into how to connect Pi to code 
 
 
 class MainWindow(QMainWindow):
@@ -80,9 +77,25 @@ class MainWindow(QMainWindow):
 
 		#LCDs for numerical vital monitoring 
 
+
+
 		lcd_BR = QLCDNumber(self)
+		lcd_BR.setSegmentStyle(QLCDNumber.Flat)
+		paletteBR = lcd_BR.palette()
+		paletteBR.setColor(paletteBR.WindowText, QtGui.QColor(85, 85, 240))
+		lcd_BR.setPalette(paletteBR)
+
 		lcd_HR = QLCDNumber(self)
+		lcd_HR.setSegmentStyle(QLCDNumber.Flat)
+		paletteHR = lcd_HR.palette()
+		paletteHR.setColor(paletteHR.WindowText, QtGui.QColor(85, 255, 85))
+		lcd_HR.setPalette(paletteHR)
+
 		lcd_TEMP = QLCDNumber(self)
+		lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
+		paletteTEMP = lcd_TEMP.palette()
+		paletteTEMP.setColor(paletteTEMP.WindowText, QtGui.QColor(255, 85, 85))
+		lcd_TEMP.setPalette(paletteTEMP)
 
 
 
@@ -95,24 +108,11 @@ class MainWindow(QMainWindow):
 
 
 
-		#TEMPORARY images of vitals - will be replaced with data feeding
+		#Matplotlib graphs 
 
-		breathing_picture = QPixmap("breathing.png")
-		HR_picture = QPixmap("hr.png")
-		temp_picture = QPixmap("breathing.png")
-
-		lbl_BR = QLabel(self)
-		lbl_BR.setPixmap(breathing_picture)
-
-		lbl_HR = QLabel(self)
-		lbl_HR.setPixmap(HR_picture)
-
-		lbl_TEMP = QLabel(self)
-		lbl_TEMP.setPixmap(temp_picture)
-
-		lbl_TEMP = PlotCanvas(title='Subject Temperature (Celsius)')
-		lbl_HR = PlotCanvas(title='Heart Rate (beats/min)')
-		lbl_BR = PlotCanvas(title='Breathing Rate (breaths/min)')
+		lbl_TEMP = PlotCanvas(title='Subject Temperature (Celsius)', color='r-')
+		lbl_HR = PlotCanvas(title='Heart Rate (beats/min)', color='g-')
+		lbl_BR = PlotCanvas(title='Breathing Rate (breaths/min)', color='b-')
 
 
 
@@ -296,6 +296,9 @@ class MainWindow(QMainWindow):
 
 				writer.writerow(fields)
 
+
+# TODO - Implement these methods 
+
 	# def analyzeHR(self):
 
 		
@@ -316,8 +319,9 @@ class MainWindow(QMainWindow):
 
 class PlotCanvas(FigureCanvas):
  
-	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None):
+	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
 		fig = Figure(figsize=(width, height), dpi=dpi)
+		self.color = color 
 		self.title = title
 		self.axes = fig.add_subplot(111)
  
@@ -331,10 +335,10 @@ class PlotCanvas(FigureCanvas):
 		self.plot()
  
  
-	def plot(self):
+	def plot(self, ):
 		data = [random.random() for i in range(25)]
 		ax = self.figure.add_subplot(111)
-		ax.plot(data, 'r-')
+		ax.plot(data, self.color)
 		ax.set_title(self.title)
 		self.draw()
 
@@ -349,10 +353,3 @@ if __name__ == '__main__':
 	ex = MainWindow()
 	sys.exit(app.exec_())
 
-
-
-# if __name__ == "__main__":
-# 	app = QApplication(sys.argv)
-# 	squiggly = MainWindow()
-# 	squiggly.show();
-# 	app.exec_()
