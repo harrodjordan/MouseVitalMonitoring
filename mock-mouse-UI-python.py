@@ -58,6 +58,21 @@ class MainWindow(QMainWindow):
 		self.title = 'Rodent Vitals Monitoring Software Demo'
 		self.width = 1200
 		self.height = 1200
+		self.model = [] 
+
+		#Matplotlib graphs 
+
+
+		self.lbl_TEMP = PlotCanvas(title='Subject Temperature (Celsius)', color='r-')
+		self.lbl_HR = PlotCanvas(title='Heart Rate (beats/min)', color='g-')
+		self.lbl_BR = PlotCanvas(title='Breathing Rate (breaths/min)', color='b-')
+
+		#LCDs for numerical vital monitoring 
+
+		self.lcd_BR = QLCDNumber(self)
+		self.lcd_HR = QLCDNumber(self)
+		self.lcd_TEMP = QLCDNumber(self)
+
 		self.initUI()
 
 	def initUI(self):  
@@ -69,33 +84,27 @@ class MainWindow(QMainWindow):
 
 
 
-		#TEMPORARY file name for data import - will be replaced with import system 
-
-		fileName='/Users/jordanharrod/Desktop/test-data.csv'
-
-
-
 		#LCDs for numerical vital monitoring 
 
 
 
-		lcd_BR = QLCDNumber(self)
-		lcd_BR.setSegmentStyle(QLCDNumber.Flat)
-		paletteBR = lcd_BR.palette()
+		
+		self.lcd_BR.setSegmentStyle(QLCDNumber.Flat)
+		paletteBR = self.lcd_BR.palette()
 		paletteBR.setColor(paletteBR.WindowText, QtGui.QColor(85, 85, 240))
-		lcd_BR.setPalette(paletteBR)
+		self.lcd_BR.setPalette(paletteBR)
 
-		lcd_HR = QLCDNumber(self)
-		lcd_HR.setSegmentStyle(QLCDNumber.Flat)
-		paletteHR = lcd_HR.palette()
+		
+		self.lcd_HR.setSegmentStyle(QLCDNumber.Flat)
+		paletteHR = self.lcd_HR.palette()
 		paletteHR.setColor(paletteHR.WindowText, QtGui.QColor(85, 255, 85))
-		lcd_HR.setPalette(paletteHR)
+		self.lcd_HR.setPalette(paletteHR)
 
-		lcd_TEMP = QLCDNumber(self)
-		lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
-		paletteTEMP = lcd_TEMP.palette()
+		
+		self.lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
+		paletteTEMP = self.lcd_TEMP.palette()
 		paletteTEMP.setColor(paletteTEMP.WindowText, QtGui.QColor(255, 85, 85))
-		lcd_TEMP.setPalette(paletteTEMP)
+		self.lcd_TEMP.setPalette(paletteTEMP)
 
 
 
@@ -107,15 +116,6 @@ class MainWindow(QMainWindow):
 		TEMPlabel = QLabel('Subject Temperature (Celsius)')
 
 
-
-		#Matplotlib graphs 
-
-		lbl_TEMP = PlotCanvas(title='Subject Temperature (Celsius)', color='r-')
-		lbl_HR = PlotCanvas(title='Heart Rate (beats/min)', color='g-')
-		lbl_BR = PlotCanvas(title='Breathing Rate (breaths/min)', color='b-')
-
-
-
 		#Setting up Frame Layout 
 
 		wid = QWidget(self)
@@ -124,26 +124,24 @@ class MainWindow(QMainWindow):
 		box = QHBoxLayout(self)
 
 
-
-
 		#Boxes for LCD vitals 
 
 		box_HRLCD = QHBoxLayout(self)
 		box_BRLCD = QHBoxLayout(self)
 		box_TEMPLCD = QHBoxLayout(self)
 
-		box_HRLCD.addWidget(lcd_HR)
-		box_BRLCD.addWidget(lcd_BR)
-		box_TEMPLCD.addWidget(lcd_TEMP)
+		box_HRLCD.addWidget(self.lcd_HR)
+		box_BRLCD.addWidget(self.lcd_BR)
+		box_TEMPLCD.addWidget(self.lcd_TEMP)
 
 
 		box_HRgraph = QHBoxLayout(self)
 		box_BRgraph = QHBoxLayout(self)
 		box_TEMPgraph = QHBoxLayout(self)
 
-		box_HRgraph.addWidget(lbl_HR)
-		box_BRgraph.addWidget(lbl_BR)
-		box_TEMPgraph.addWidget(lbl_TEMP)
+		box_HRgraph.addWidget(self.lbl_HR)
+		box_BRgraph.addWidget(self.lbl_BR)
+		box_TEMPgraph.addWidget(self.lbl_TEMP)
 
 
 
@@ -264,7 +262,7 @@ class MainWindow(QMainWindow):
 
 	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
 
-	def loadCsv(self, fileName):
+	def loadCsv(self):
 
 		root = tk.Tk()
 		root.withdraw()
@@ -281,15 +279,20 @@ class MainWindow(QMainWindow):
 				]
 				self.model.appendRow(items)
 
-		time = self.model[columns]
-		HR = self.model[columns]
-		BR = self.model[columns]
-		Temp = self.model[columns]
+		np.append(self.model, time)
+		np.append(self.model, HR)
+		np.append(self.model, BR)
+		np.append(self.model, Temp)
+		self.model = self.model[2:]
 
 		return [time, HR, BR, Temp] # AND THEN PASS TO DATA ANALYSIS AND REGRAPH 
 
 
 	def writeCsv(self, fileName):
+
+		cwd = os.getcwd()
+
+		fileName = cwd + fileName
 
 		with open(fileName, "wb") as fileOutput:
 
@@ -348,6 +351,15 @@ class PlotCanvas(FigureCanvas):
  
  
 	def plot(self, data):
+		ax = self.figure.add_subplot(111)
+		ax.plot(data, self.color)
+		ax.set_title(self.title)
+		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
+		ytext = ax.set_ylabel('Volts (mV)')
+		ax.autoscale(enable=True, axis='x', tight=True)
+		self.draw()
+
+	def plot(self):
 		data = [random.random() for i in range(25)]
 		ax = self.figure.add_subplot(111)
 		ax.plot(data, self.color)
