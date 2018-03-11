@@ -20,7 +20,6 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPu
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pyqtgraph as pg 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 #import PIL.Image
@@ -29,15 +28,13 @@ import random
 import argparse
 import sys
 import csv
-
-import tkinter
+import tkinter as tk
+from tkinter import filedialog
 
 # use patient monitoring systems as a design model 
 
 # TO DO BACKLOG - SPRINT 3
-# set graph geometry to maintian size consistancy across instantiations 
-# update the toolbar - import
-# update the toolbar - export 
+
 # data graphing
 # how to connect pi to code
 # connecting pi to code 
@@ -45,9 +42,7 @@ import tkinter
 # look into sensor integration 
 # look into data reading 
 
-# TO-DO 3.6.18
-# incorporate matplotlub for graphing 
-# look into how to connect Pi to code 
+
 
 
 class MainWindow(QMainWindow):
@@ -61,6 +56,21 @@ class MainWindow(QMainWindow):
 		self.title = 'Rodent Vitals Monitoring Software Demo'
 		self.width = 1200
 		self.height = 1200
+		self.model = [] 
+
+		#Matplotlib graphs 
+
+
+		self.lbl_TEMP = PlotCanvas(title='Subject Temperature (Celsius)', color='r-')
+		self.lbl_HR = PlotCanvas(title='Heart Rate (beats/min)', color='g-')
+		self.lbl_BR = PlotCanvas(title='Breathing Rate (breaths/min)', color='b-')
+
+		#LCDs for numerical vital monitoring 
+
+		self.lcd_BR = QLCDNumber(self)
+		self.lcd_HR = QLCDNumber(self)
+		self.lcd_TEMP = QLCDNumber(self)
+
 		self.initUI()
 
 	def initUI(self):  
@@ -72,17 +82,25 @@ class MainWindow(QMainWindow):
 
 
 
-		#TEMPORARY file name for data import - will be replaced with import system 
-
-		fileName='/Users/jordanharrod/Desktop/test-data.csv'
-
-
-
 		#LCDs for numerical vital monitoring 
 
-		lcd_BR = QLCDNumber(self)
-		lcd_HR = QLCDNumber(self)
-		lcd_TEMP = QLCDNumber(self)
+		
+		self.lcd_BR.setSegmentStyle(QLCDNumber.Flat)
+		paletteBR = self.lcd_BR.palette()
+		paletteBR.setColor(paletteBR.WindowText, QtGui.QColor(85, 85, 240))
+		self.lcd_BR.setPalette(paletteBR)
+
+		
+		self.lcd_HR.setSegmentStyle(QLCDNumber.Flat)
+		paletteHR = self.lcd_HR.palette()
+		paletteHR.setColor(paletteHR.WindowText, QtGui.QColor(85, 255, 85))
+		self.lcd_HR.setPalette(paletteHR)
+
+		
+		self.lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
+		paletteTEMP = self.lcd_TEMP.palette()
+		paletteTEMP.setColor(paletteTEMP.WindowText, QtGui.QColor(255, 85, 85))
+		self.lcd_TEMP.setPalette(paletteTEMP)
 
 
 
@@ -94,28 +112,6 @@ class MainWindow(QMainWindow):
 		TEMPlabel = QLabel('Subject Temperature (Celsius)')
 
 
-
-		#TEMPORARY images of vitals - will be replaced with data feeding
-
-		breathing_picture = QPixmap("breathing.png")
-		HR_picture = QPixmap("hr.png")
-		temp_picture = QPixmap("breathing.png")
-
-		lbl_BR = QLabel(self)
-		lbl_BR.setPixmap(breathing_picture)
-
-		lbl_HR = QLabel(self)
-		lbl_HR.setPixmap(HR_picture)
-
-		lbl_TEMP = QLabel(self)
-		lbl_TEMP.setPixmap(temp_picture)
-
-		lbl_TEMP = PlotCanvas(title='Subject Temperature (Celsius)')
-		lbl_HR = PlotCanvas(title='Heart Rate (beats/min)')
-		lbl_BR = PlotCanvas(title='Breathing Rate (breaths/min)')
-
-
-
 		#Setting up Frame Layout 
 
 		wid = QWidget(self)
@@ -124,26 +120,24 @@ class MainWindow(QMainWindow):
 		box = QHBoxLayout(self)
 
 
-
-
 		#Boxes for LCD vitals 
 
 		box_HRLCD = QHBoxLayout(self)
 		box_BRLCD = QHBoxLayout(self)
 		box_TEMPLCD = QHBoxLayout(self)
 
-		box_HRLCD.addWidget(lcd_HR)
-		box_BRLCD.addWidget(lcd_BR)
-		box_TEMPLCD.addWidget(lcd_TEMP)
+		box_HRLCD.addWidget(self.lcd_HR)
+		box_BRLCD.addWidget(self.lcd_BR)
+		box_TEMPLCD.addWidget(self.lcd_TEMP)
 
 
 		box_HRgraph = QHBoxLayout(self)
 		box_BRgraph = QHBoxLayout(self)
 		box_TEMPgraph = QHBoxLayout(self)
 
-		box_HRgraph.addWidget(lbl_HR)
-		box_BRgraph.addWidget(lbl_BR)
-		box_TEMPgraph.addWidget(lbl_TEMP)
+		box_HRgraph.addWidget(self.lbl_HR)
+		box_BRgraph.addWidget(self.lbl_BR)
+		box_TEMPgraph.addWidget(self.lbl_TEMP)
 
 
 
@@ -176,9 +170,6 @@ class MainWindow(QMainWindow):
 
 		bottomleft.setLayout(box_TEMPgraph)
 		bottomright.setLayout(box_TEMPLCD)
-
-
-
 
 
 		# Splitting frames and adding layout to window 
@@ -242,12 +233,31 @@ class MainWindow(QMainWindow):
 
 		#Making the toolbar 
 
-		exitAct = QAction(QIcon('exit24.png'), 'Exit', self)
+		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
 		exitAct.setShortcut('Ctrl+Q')
 		exitAct.triggered.connect(qApp.quit)
+
+		saveAct = QAction(QIcon('48-512.png'), 'Save', self)
+		saveAct.setShortcut('Ctrl+S')
+		saveAct.triggered.connect(self.saveData)
+
+		importAct = QAction(QIcon('512x512.png'), 'Import', self)
+		importAct.setShortcut('Ctrl+I')
+		importAct.triggered.connect(self.saveData)
+
+		exportAct = QAction(QIcon('document.png'), 'Export', self)
+		exportAct.setShortcut('Ctrl+E')
+		exportAct.triggered.connect(self.saveData)
 		
 		self.toolbar = self.addToolBar('Exit')
+		self.toolbar = self.addToolBar('Save')
+		self.toolbar = self.addToolBar('Import')
+		self.toolbar = self.addToolBar('Export')
+
 		self.toolbar.addAction(exitAct)
+		self.toolbar.addAction(saveAct)
+		self.toolbar.addAction(importAct)
+		self.toolbar.addAction(exportAct)
 
 		#Setting window size and showing
   
@@ -262,9 +272,14 @@ class MainWindow(QMainWindow):
 		else:
 			self.statusbar.hide()
 
-	# update import export functionality 
+	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
 
-	def loadCsv(self, fileName):
+	def loadCsv(self):
+
+		root = tk.Tk()
+		root.withdraw()
+
+		fileName = filedialog.askopenfilename(filetypes=(("csv files","*.csv"), ("xls files","*.xls"), ("xlsx files","*.xlsx"), ("txt files","*.txt"), ("all files","*.*")))
 
 		with open(fileName, "rb") as fileInput:
 
@@ -276,10 +291,18 @@ class MainWindow(QMainWindow):
 				]
 				self.model.appendRow(items)
 
-		self.graph.plot(PlotDataItem(xValues, yValues))
+		writeCsv(fileName)
+
+		self.lbl_HR.plot([self.model[1], self.model[2]])
+		self.lbl_BR.plot([self.model[1], self.model[3]])
+		self.lbl_TEMP.plot([self.model[1], self.model[4]])
 
 
 	def writeCsv(self, fileName):
+
+		cwd = os.getcwd()
+
+		fileName = cwd + fileName
 
 		with open(fileName, "wb") as fileOutput:
 
@@ -295,6 +318,17 @@ class MainWindow(QMainWindow):
 				]
 
 				writer.writerow(fields)
+
+	def saveData(self):
+
+		data = self.model
+
+	def exportData(self):
+
+		data = self.model 
+
+
+# TODO - Implement these methods 
 
 	# def analyzeHR(self):
 
@@ -316,9 +350,11 @@ class MainWindow(QMainWindow):
 
 class PlotCanvas(FigureCanvas):
  
-	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None):
+	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
 		fig = Figure(figsize=(width, height), dpi=dpi)
+		self.color = color 
 		self.title = title
+
 		self.axes = fig.add_subplot(111)
  
 		FigureCanvas.__init__(self, fig)
@@ -328,14 +364,27 @@ class PlotCanvas(FigureCanvas):
 				QtWidgets.QSizePolicy.Expanding,
 				QtWidgets.QSizePolicy.Expanding)
 		FigureCanvas.updateGeometry(self)
+		fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
 		self.plot()
  
  
+	def plot(self, data):
+		ax = self.figure.add_subplot(111)
+		ax.plot(data, self.color)
+		ax.set_title(self.title)
+		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
+		ytext = ax.set_ylabel('Volts (mV)')
+		ax.autoscale(enable=True, axis='x', tight=True)
+		self.draw()
+
 	def plot(self):
 		data = [random.random() for i in range(25)]
 		ax = self.figure.add_subplot(111)
-		ax.plot(data, 'r-')
+		ax.plot(data, self.color)
 		ax.set_title(self.title)
+		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
+		ytext = ax.set_ylabel('Volts (mV)')
+		ax.autoscale(enable=True, axis='x', tight=True)
 		self.draw()
 
 
@@ -349,10 +398,3 @@ if __name__ == '__main__':
 	ex = MainWindow()
 	sys.exit(app.exec_())
 
-
-
-# if __name__ == "__main__":
-# 	app = QApplication(sys.argv)
-# 	squiggly = MainWindow()
-# 	squiggly.show();
-# 	app.exec_()

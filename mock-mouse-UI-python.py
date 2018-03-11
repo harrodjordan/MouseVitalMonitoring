@@ -84,8 +84,6 @@ class MainWindow(QMainWindow):
 
 		#LCDs for numerical vital monitoring 
 
-
-
 		
 		self.lcd_BR.setSegmentStyle(QLCDNumber.Flat)
 		paletteBR = self.lcd_BR.palette()
