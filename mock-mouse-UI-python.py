@@ -34,17 +34,15 @@ from tkinter import filedialog
 # use patient monitoring systems as a design model 
 
 # TO DO BACKLOG - SPRINT 3
+
+# data graphing
 # how to connect pi to code
 # connecting pi to code 
 # display on touch screen 
 # look into sensor integration 
 # look into data reading 
 
-# TO-DO 3.7.18
-# set graph geometry to maintian size consistancy across instantiations 
-# update the toolbar - import
-# update the toolbar - export 
-# data graphing
+
 
 
 class MainWindow(QMainWindow):
@@ -176,9 +174,6 @@ class MainWindow(QMainWindow):
 		bottomright.setLayout(box_TEMPLCD)
 
 
-
-
-
 		# Splitting frames and adding layout to window 
 
 
@@ -240,12 +235,31 @@ class MainWindow(QMainWindow):
 
 		#Making the toolbar 
 
-		exitAct = QAction(QIcon('exit24.png'), 'Exit', self)
+		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
 		exitAct.setShortcut('Ctrl+Q')
 		exitAct.triggered.connect(qApp.quit)
+
+		saveAct = QAction(QIcon('48-512.png'), 'Save', self)
+		saveAct.setShortcut('Ctrl+S')
+		saveAct.triggered.connect(self.saveData)
+
+		importAct = QAction(QIcon('512x512.png'), 'Import', self)
+		importAct.setShortcut('Ctrl+I')
+		importAct.triggered.connect(self.saveData)
+
+		exportAct = QAction(QIcon('document.png'), 'Export', self)
+		exportAct.setShortcut('Ctrl+E')
+		exportAct.triggered.connect(self.saveData)
 		
 		self.toolbar = self.addToolBar('Exit')
+		self.toolbar = self.addToolBar('Save')
+		self.toolbar = self.addToolBar('Import')
+		self.toolbar = self.addToolBar('Export')
+
 		self.toolbar.addAction(exitAct)
+		self.toolbar.addAction(saveAct)
+		self.toolbar.addAction(importAct)
+		self.toolbar.addAction(exportAct)
 
 		#Setting window size and showing
   
@@ -279,13 +293,11 @@ class MainWindow(QMainWindow):
 				]
 				self.model.appendRow(items)
 
-		np.append(self.model, time)
-		np.append(self.model, HR)
-		np.append(self.model, BR)
-		np.append(self.model, Temp)
-		self.model = self.model[2:]
+		writeCsv(fileName)
 
-		return [time, HR, BR, Temp] # AND THEN PASS TO DATA ANALYSIS AND REGRAPH 
+		self.lbl_HR.plot([self.model[1], self.model[2]])
+		self.lbl_BR.plot([self.model[1], self.model[3]])
+		self.lbl_TEMP.plot([self.model[1], self.model[4]])
 
 
 	def writeCsv(self, fileName):
@@ -308,6 +320,14 @@ class MainWindow(QMainWindow):
 				]
 
 				writer.writerow(fields)
+
+	def saveData(self):
+
+		data = self.model
+
+	def exportData(self):
+
+		data = self.model 
 
 
 # TODO - Implement these methods 
