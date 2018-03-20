@@ -375,7 +375,17 @@ class PlotCanvas(FigureCanvas):
 		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
 		ytext = ax.set_ylabel('Volts (mV)')
 		ax.autoscale(enable=True, axis='x', tight=True)
-		self.draw()
+
+		[m, n] = np.size(data)
+
+		for i in range(n):
+    		ax.plot(data(1:i), self.color)
+    		plt.draw()
+    		plt.pause(0.05)
+
+		while True:
+    		plt.pause(0.05)
+			self.draw()
 
 	def plot(self):
 		data = [random.random() for i in range(25)]
