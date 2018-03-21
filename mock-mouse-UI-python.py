@@ -28,6 +28,7 @@ import random
 import argparse
 import sys
 import csv
+import scipy.io
 import tkinter as tk
 from tkinter import filedialog
 
@@ -346,9 +347,11 @@ class MainWindow(QMainWindow):
 		
 
 
-# TODO - Change graph layout to have axes meet edges with title at the top  - Change graph colors to match patient monitoring systems 
+# TODO - manually adjustable sliding window, plot reset based on “start time”
 
 class PlotCanvas(FigureCanvas):
+
+	
  
 	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
 		fig = Figure(figsize=(width, height), dpi=dpi)
@@ -379,23 +382,33 @@ class PlotCanvas(FigureCanvas):
 		[m, n] = np.size(data)
 
 		for i in range(n):
-    		ax.plot(data(1:i), self.color)
-    		plt.draw()
-    		plt.pause(0.05)
+			ax.plot(data[1:i,:], self.color)
+			plt.draw()
+			plt.pause(0.05)
 
 		while True:
-    		plt.pause(0.05)
+			plt.pause(0.05)
 			self.draw()
 
 	def plot(self):
-		data = [random.random() for i in range(25)]
+		data = scipy.io.loadmat('ExampleData.mat')
 		ax = self.figure.add_subplot(111)
 		ax.plot(data, self.color)
 		ax.set_title(self.title)
 		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
 		ytext = ax.set_ylabel('Volts (mV)')
 		ax.autoscale(enable=True, axis='x', tight=True)
-		self.draw()
+		
+		[m, n] = np.size(data)
+
+		for i in range(n):
+			ax.plot(data[1:i,:], self.color)
+			self.draw()
+			self.pause(0.05)
+
+		while True:
+			self.pause(0.05)
+			self.draw()
 
 
 

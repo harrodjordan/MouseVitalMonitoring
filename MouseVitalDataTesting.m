@@ -21,11 +21,14 @@ time_min = linspace(0, 1, length(minute));
 figure;
 plot(time_min, minute)
 
-lpFilt = designfilt('lowpassiir','FilterOrder',8, 'PassbandFrequency',2,'PassbandRipple',0.2,'SampleRate',200e3);
+lpFilt = designfilt('lowpassiir','FilterOrder',8, 'PassbandFrequency',3,'PassbandRipple',0.2,'SampleRate',200e3);
+fvtool(lpFilt)
 
-hpFilt = designfilt('highpassiir','FilterOrder',8, 'PassbandFrequency',3,'PassbandRipple',0.2,'SampleRate',200e3);
+hpFilt = designfilt('highpassiir','FilterOrder',8, 'PassbandFrequency',5,'PassbandRipple',0.2,'SampleRate',200e3);
+fvtool(hpFilt)
      
 bpFilt = designfilt('bandpassiir','FilterOrder',20, 'HalfPowerFrequency1',0.5,'HalfPowerFrequency2',10,'SampleRate',1500);
+fvtool(bpFilt)
 
 HR = filter(hpFilt, minute);
 breathing = filter(lpFilt, minute);
@@ -43,10 +46,11 @@ plot(time_min, HR)
 
 [pks, loc] =  findpeaks(HR, 'MinPeakDistance', 1000);
 
+dist = 0;
 
 for i = 2:length(loc)
     
-    dist(i) = loc(i)/6000 - loc(i-1)/6000;
+    dist(i) = loc(i)/60000 - loc(i-1)/60000;
     
 end
 
