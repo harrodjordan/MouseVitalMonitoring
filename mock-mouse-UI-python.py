@@ -31,6 +31,7 @@ import csv
 import scipy.io
 import tkinter as tk
 from tkinter import filedialog
+from numpy import genfromtxt
 
 # use patient monitoring systems as a design model 
 
@@ -249,20 +250,28 @@ class MainWindow(QMainWindow):
 		exportAct = QAction(QIcon('document.png'), 'Export', self)
 		exportAct.setShortcut('Ctrl+E')
 		exportAct.triggered.connect(self.saveData)
+
+		plotHRAct = QAction(QIcon('document.png'), 'Record HR', self)
+		plotHRAct.triggered.connect(lambda: self.lbl_HR.plot())
 		
 		self.toolbar = self.addToolBar('Exit')
 		self.toolbar = self.addToolBar('Save')
 		self.toolbar = self.addToolBar('Import')
 		self.toolbar = self.addToolBar('Export')
+		self.toolbar = self.addToolBar('Record HR')
 
 		self.toolbar.addAction(exitAct)
 		self.toolbar.addAction(saveAct)
 		self.toolbar.addAction(importAct)
 		self.toolbar.addAction(exportAct)
+		self.toolbar.addAction(plotHRAct)
+
 
 		#Setting window size and showing
   
 		self.show()
+
+		#self.lbl_HR.plot()
 
 
 	
@@ -368,7 +377,7 @@ class PlotCanvas(FigureCanvas):
 				QtWidgets.QSizePolicy.Expanding)
 		FigureCanvas.updateGeometry(self)
 		fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
-		self.plot()
+		#self.plot()
  
  
 	def plot(self, data):
@@ -391,24 +400,29 @@ class PlotCanvas(FigureCanvas):
 			self.draw()
 
 	def plot(self):
-		data = scipy.io.loadmat('ExampleData.mat')
+
+		data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
+		#data = np.asarray(data['data'])
+		print(data)
+
 		ax = self.figure.add_subplot(111)
-		ax.plot(data, self.color)
-		ax.set_title(self.title)
+		#ax.plot(data, self.color)
+		
 		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
 		ytext = ax.set_ylabel('Volts (mV)')
-		ax.autoscale(enable=True, axis='x', tight=True)
 		
-		[m, n] = np.size(data)
+		
 
-		for i in range(n):
+		for i in range(len(data)):
+			ax.set_title(self.title)
+			ax.cla()
 			ax.plot(data[1:i,:], self.color)
+			ax.autoscale(enable=True, axis='x', tight=True)
 			self.draw()
-			self.pause(0.05)
+			plt.pause(0.05)
 
-		while True:
-			self.pause(0.05)
-			self.draw()
+
+
 
 
 
