@@ -20,6 +20,9 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPu
 
 import numpy as np
 import matplotlib.pyplot as plt
+import time
+		
+plt.ion()
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 #import PIL.Image
@@ -48,6 +51,7 @@ from numpy import genfromtxt
 
 
 class MainWindow(QMainWindow):
+
 
 	def __init__(self):
 
@@ -359,24 +363,23 @@ class MainWindow(QMainWindow):
 # TODO - manually adjustable sliding window, plot reset based on “start time”
 
 class PlotCanvas(FigureCanvas):
-
-	
  
 	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
-		fig = Figure(figsize=(width, height), dpi=dpi)
+		plt.ion()
+		self.fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
 		self.title = title
 
-		self.axes = fig.add_subplot(111)
+		self.axes = self.fig.add_subplot(111)
  
-		FigureCanvas.__init__(self, fig)
+		FigureCanvas.__init__(self, self.fig)
 		self.setParent(parent)
  
 		FigureCanvas.setSizePolicy(self,
 				QtWidgets.QSizePolicy.Expanding,
 				QtWidgets.QSizePolicy.Expanding)
 		FigureCanvas.updateGeometry(self)
-		fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
+		self.fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
 		#self.plot()
  
  
@@ -401,25 +404,41 @@ class PlotCanvas(FigureCanvas):
 
 	def plot(self):
 
+		
+
 		data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
-		#data = np.asarray(data['data'])
-		print(data)
+		start = time.time()
+		self.axes.set_title(self.title)
+		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
+		ytext = self.axes.set_ylabel('Volts (V)')
+		line, = self.axes.plot(data[1:50, 0] ,data[1:50, 1], self.color)
+		self.fig.canvas.draw()
+		print(time.time() - start)
+		plt.pause(1)
 
-		ax = self.figure.add_subplot(111)
-		#ax.plot(data, self.color)
-		
-		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
-		ytext = ax.set_ylabel('Volts (mV)')
-		
-		
 
-		for i in range(len(data)):
-			ax.set_title(self.title)
-			ax.cla()
-			ax.plot(data[1:i,:], self.color)
-			ax.autoscale(enable=True, axis='x', tight=True)
-			self.draw()
+		
+	
+		for i in range(20): #range(len(data)):
+			print(i)
+			self.axes.set_title(self.title)
+			self.axes.set_ylim(min(data[1:50, 1]), max(data[1:50, 1]))
+			line.set_data(data[i:50+i, 0], data[i:50+i, 1])
+			self.axes.set_xlabel('Time (s)') # returns a Text instance
+			self.axes.set_ylabel('Volts (mV)')
+			plt.show(block=False)
 			plt.pause(0.05)
+			print(i)
+
+
+			
+			
+		
+
+			# 
+			# print(data[i:i+5,:])
+			# self.fig.canvas.draw()
+			# plt.pause(0.001)
 
 
 
