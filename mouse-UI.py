@@ -402,6 +402,8 @@ class PlotCanvas(FigureCanvas):
 			plt.pause(0.05)
 			self.draw()
 
+
+
 	def plot(self):
 
 		
@@ -413,21 +415,22 @@ class PlotCanvas(FigureCanvas):
 		ytext = self.axes.set_ylabel('Volts (V)')
 		line, = self.axes.plot(data[1:50, 0] ,data[1:50, 1], self.color)
 		self.fig.canvas.draw()
+		self.fig.canvas.flush_events()
 		print(time.time() - start)
 		plt.pause(1)
 
 
 		
 	
-		for i in range(20): #range(len(data)):
-			print(i)
-			self.axes.set_title(self.title)
-			self.axes.set_ylim(min(data[1:50, 1]), max(data[1:50, 1]))
+		for i in range(len(data)):
+			self.axes.set_ylim(min(data[i:50+i, 1]), max(data[i:50+i, 1]))
+			self.axes.set_xlim(min(data[i:50+i, 0]), max(data[i:50+i, 0]))
 			line.set_data(data[i:50+i, 0], data[i:50+i, 1])
-			self.axes.set_xlabel('Time (s)') # returns a Text instance
-			self.axes.set_ylabel('Volts (mV)')
-			plt.show(block=False)
-			plt.pause(0.05)
+			self.fig.canvas.draw()
+			self.fig.canvas.flush_events()
+			#plt.show(block=False)
+			plt.pause(0.07)
+
 			print(i)
 
 
