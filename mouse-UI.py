@@ -345,7 +345,7 @@ class MainWindow(QMainWindow):
 # TODO - Implement these methods 
 
 	# def analyzeHR(self):
-
+		
 		
 
 
@@ -404,32 +404,28 @@ class PlotCanvas(FigureCanvas):
 
 
 
-	def plot(self):
+	def plot(self, window=50, start=0):
 
-		
 
 		data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
 		start = time.time()
 		self.axes.set_title(self.title)
 		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
 		ytext = self.axes.set_ylabel('Volts (V)')
-		line, = self.axes.plot(data[1:50, 0] ,data[1:50, 1], self.color)
+		line, = self.axes.plot(data[1:window, 0] ,data[1:window, 1], self.color)
 		self.fig.canvas.draw()
 		self.fig.canvas.flush_events()
 		print(time.time() - start)
-		plt.pause(1)
+		plt.pause(0.05)
 
-
-		
 	
-		for i in range(len(data)):
-			self.axes.set_ylim(min(data[i:50+i, 1]), max(data[i:50+i, 1]))
-			self.axes.set_xlim(min(data[i:50+i, 0]), max(data[i:50+i, 0]))
+		for i in range(start:len(data)):
+			self.axes.set_ylim(min(data[i:window+i, 1]), max(data[i:window+i, 1]))
+			self.axes.set_xlim(min(data[i:window+i, 0]), max(data[i:window+i, 0]))
 			line.set_data(data[i:50+i, 0], data[i:50+i, 1])
 			self.fig.canvas.draw()
 			self.fig.canvas.flush_events()
-			#plt.show(block=False)
-			plt.pause(0.07)
+			plt.pause(0.05)
 
 			print(i)
 
