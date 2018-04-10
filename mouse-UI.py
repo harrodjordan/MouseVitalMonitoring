@@ -14,7 +14,7 @@ import PyQt5
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
-from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, QFrame, QSplitter, QStyleFactory, QLCDNumber, QLabel
+from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, QFrame, QSplitter, QStyleFactory, QLCDNumber, QLabel, QInputDialog
 
 
 
@@ -209,25 +209,32 @@ class MainWindow(QMainWindow):
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu('File')
 		viewMenu = menubar.addMenu('View')
+		recordingMenu = menubar.addMenu('Recording Options')
 
 		self.statusbar = self.statusBar()
 		self.statusbar.showMessage('Ready')
 	
 		impMenu = QMenu('Import', self)
 		impAct = QAction('Import data', self) 
-		impAct.triggered.connect(self.loadCsv)
+		impAct.triggered.connect(lambda: self.loadCsv)
 		impMenu.addAction(impAct)
 
 		expMenu = QMenu('Export', self)
 		expAct = QAction('Export data', self) 
-		expAct.triggered.connect(self.writeCsv)
+		expAct.triggered.connect(lambda: self.writeCsv)
 		expMenu.addAction(expAct)
 		
-		newAct = QAction('New', self)        
+		newAct = QAction('New', self)       
+
+		changeWindowSize = QAction('Change HR Window Size', self)
+		changeWindowSize.triggered.connect(lambda: self.windowSizeInput()) 
+
+		recordingMenu.addAction(changeWindowSize)
 		
 		fileMenu.addAction(newAct)
 		fileMenu.addMenu(impMenu)
 		fileMenu.addMenu(expMenu)
+		fileMenu.addMenu(recordingMenu)
 
 		#Making the status bar 
 
@@ -241,7 +248,7 @@ class MainWindow(QMainWindow):
 
 		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
 		exitAct.setShortcut('Ctrl+Q')
-		exitAct.triggered.connect(qApp.quit)
+		exitAct.triggered.connect(lambda: sys.exit())
 
 		saveAct = QAction(QIcon('48-512.png'), 'Save', self)
 		saveAct.setShortcut('Ctrl+S')
@@ -275,8 +282,15 @@ class MainWindow(QMainWindow):
   
 		self.show()
 
-		#self.lbl_HR.plot()
+	def windowSizeInput(self):
 
+		# open a smaller window with a numerical input option 
+
+		num,ok = QInputDialog.getInt(self,"integer input dualog","enter a number")
+		
+		if ok:
+			newSize = num
+			self.lbl_HR.plot(window=newSize, start = self.lbl_HR.current_time)
 
 	
 	def toggleMenu(self, state):
@@ -356,19 +370,22 @@ class MainWindow(QMainWindow):
 
 
 	# def analyzeTEMP(self):
-
 		
 
 
 # TODO - manually adjustable sliding window, plot reset based on “start time”
 
 class PlotCanvas(FigureCanvas):
+
+	
  
 	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
 		plt.ion()
+		self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
 		self.fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
 		self.title = title
+		self.current_time = 0
 
 		self.axes = self.fig.add_subplot(111)
  
@@ -407,27 +424,25 @@ class PlotCanvas(FigureCanvas):
 	def plot(self, window=50, start=0):
 
 
-		data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
-		start = time.time()
+
 		self.axes.set_title(self.title)
 		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
 		ytext = self.axes.set_ylabel('Volts (V)')
-		line, = self.axes.plot(data[1:window, 0] ,data[1:window, 1], self.color)
+		line, = self.axes.plot(self.data[1:window, 0] ,self.data[1:window, 1], self.color)
 		self.fig.canvas.draw()
 		self.fig.canvas.flush_events()
-		print(time.time() - start)
 		plt.pause(0.05)
 
 	
-		for i in range(start:len(data)):
-			self.axes.set_ylim(min(data[i:window+i, 1]), max(data[i:window+i, 1]))
-			self.axes.set_xlim(min(data[i:window+i, 0]), max(data[i:window+i, 0]))
-			line.set_data(data[i:50+i, 0], data[i:50+i, 1])
+		for i in range(len(self.data)):
+			self.axes.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
+			self.axes.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
+			line.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
 			self.fig.canvas.draw()
 			self.fig.canvas.flush_events()
 			plt.pause(0.05)
+			self.current_time = i
 
-			print(i)
 
 
 			
