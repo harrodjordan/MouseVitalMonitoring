@@ -229,6 +229,9 @@ class MainWindow(QMainWindow):
 		changeWindowSize = QAction('Change HR Window Size', self)
 		changeWindowSize.triggered.connect(lambda: self.windowSizeInput()) 
 
+		resetWindow = QAction('Reset HR Window to Present', self)
+		resetWindow.triggered.connect(lambda: self.lbl_HR.plot(start = self.lbl_HR.current_time))
+
 		recordingMenu.addAction(changeWindowSize)
 		
 		fileMenu.addAction(newAct)
