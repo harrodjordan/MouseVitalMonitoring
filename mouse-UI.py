@@ -38,17 +38,6 @@ from numpy import genfromtxt
 
 # use patient monitoring systems as a design model 
 
-# TO DO BACKLOG - SPRINT 3
-
-# data graphing
-# how to connect pi to code
-# connecting pi to code 
-# display on touch screen 
-# look into sensor integration 
-# look into data reading 
-
-
-
 
 class MainWindow(QMainWindow):
 
@@ -201,10 +190,6 @@ class MainWindow(QMainWindow):
 		box.addWidget(splitter4)
 		wid.setLayout(box)    
 
-		#UNFINISHED BELOW
-
-
-		#Making the menu bar  
 	
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu('File')
@@ -226,13 +211,26 @@ class MainWindow(QMainWindow):
 		
 		newAct = QAction('New', self)       
 
-		changeWindowSize = QAction('Change HR Window Size', self)
-		changeWindowSize.triggered.connect(lambda: self.windowSizeInput()) 
+		HRchangeWindowSize = QAction('Change HR Window Size', self)
+		HRchangeWindowSize.triggered.connect(lambda: self.HRwindowSizeInput()) 
 
-		resetWindow = QAction('Reset HR Window to Present', self)
-		resetWindow.triggered.connect(lambda: self.lbl_HR.plot(start = self.lbl_HR.current_time))
+		resetWindow = QAction('Reset Window to Present', self)
+		resetWindow.triggered.connect(lambda: self.windowReset())
 
-		recordingMenu.addAction(changeWindowSize)
+		BRchangeWindowSize = QAction('Change BR Window Size', self)
+		BRchangeWindowSize.triggered.connect(lambda: self.BRwindowSizeInput()) 
+
+		TEMPchangeWindowSize = QAction('Change Temperature Window Size', self)
+		TEMPchangeWindowSize.triggered.connect(lambda: self.TEMPwindowSizeInput()) 
+
+
+
+		recordingMenu.addAction(HRchangeWindowSize)
+		recordingMenu.addAction(BRchangeWindowSize)
+		recordingMenu.addAction(TEMPchangeWindowSize)
+
+		recordingMenu.addAction(resetWindow)
+
 		
 		fileMenu.addAction(newAct)
 		fileMenu.addMenu(impMenu)
@@ -255,45 +253,83 @@ class MainWindow(QMainWindow):
 
 		saveAct = QAction(QIcon('48-512.png'), 'Save', self)
 		saveAct.setShortcut('Ctrl+S')
-		saveAct.triggered.connect(self.saveData)
+		saveAct.triggered.connect(lambda: self.saveData)
 
 		importAct = QAction(QIcon('512x512.png'), 'Import', self)
 		importAct.setShortcut('Ctrl+I')
-		importAct.triggered.connect(self.saveData)
+		importAct.triggered.connect(lambda: self.saveData)
 
 		exportAct = QAction(QIcon('document.png'), 'Export', self)
 		exportAct.setShortcut('Ctrl+E')
-		exportAct.triggered.connect(self.saveData)
+		exportAct.triggered.connect(lambda: self.saveData)
 
-		plotHRAct = QAction(QIcon('document.png'), 'Record HR', self)
+		plotHRAct = QAction(QIcon('200px-Love_Heart_SVG.svg.png'), 'Record HR', self)
 		plotHRAct.triggered.connect(lambda: self.lbl_HR.plot())
+
+		plotBRAct = QAction(QIcon('980935_964a998538bc4052b413da77b99d4759~mv2.png'), 'Record BR', self)
+		plotBRAct.triggered.connect(lambda: self.lbl_BR.plot())
+
+		plotTempAct = QAction(QIcon('Screen Shot 2018-04-11 at 12.37.24 PM.png'), 'Record Temp', self)
+		plotTempAct.triggered.connect(lambda: self.lbl_TEMP.plot())
 		
 		self.toolbar = self.addToolBar('Exit')
 		self.toolbar = self.addToolBar('Save')
 		self.toolbar = self.addToolBar('Import')
 		self.toolbar = self.addToolBar('Export')
 		self.toolbar = self.addToolBar('Record HR')
+		self.toolbar = self.addToolBar('Record BR')
+		self.toolbar = self.addToolBar('Record TEMP')
 
 		self.toolbar.addAction(exitAct)
 		self.toolbar.addAction(saveAct)
 		self.toolbar.addAction(importAct)
 		self.toolbar.addAction(exportAct)
 		self.toolbar.addAction(plotHRAct)
+		self.toolbar.addAction(plotBRAct)
+		self.toolbar.addAction(plotTempAct)
 
 
 		#Setting window size and showing
   
 		self.show()
 
-	def windowSizeInput(self):
+	def HRwindowSizeInput(self):
 
 		# open a smaller window with a numerical input option 
 
-		num,ok = QInputDialog.getInt(self,"integer input dualog","enter a number")
+		num,ok = QInputDialog.getInt(self,"HR Window Dialog","enter a number")
 		
 		if ok:
 			newSize = num
 			self.lbl_HR.plot(window=newSize, start = self.lbl_HR.current_time)
+
+	def HRwindowSizeInput(self):
+
+		# open a smaller window with a numerical input option 
+
+		num,ok = QInputDialog.getInt(self,"BR Window Dialog","enter a number")
+		
+		if ok:
+			newSize = num
+			self.lbl_BR.plot(window=newSize, start = self.lbl_BR.current_time)
+
+	def HRwindowSizeInput(self):
+
+		# open a smaller window with a numerical input option 
+
+		num,ok = QInputDialog.getInt(self,"Temperature Window Dialog","enter a number")
+		
+		if ok:
+			newSize = num
+			self.lbl_TEMP.plot(window=newSize, start = self.lbl_TEMP.current_time)
+
+
+	def windowReset(self):
+
+		self.lbl_HR.plot(window = self.lbl_HR.window, start = self.lbl_HR.current_time)
+		self.lbl_BR.plot(window = self.lbl_BR.window, start = self.lbl_BR.current_time)
+		self.lbl_TEMP.plot(window = self.lbl_TEMP.window, start = self.lbl_TEMP.current_time)
+
 
 	
 	def toggleMenu(self, state):
@@ -389,6 +425,7 @@ class PlotCanvas(FigureCanvas):
 		self.color = color 
 		self.title = title
 		self.current_time = 0
+		self.window = 50
 
 		self.axes = self.fig.add_subplot(111)
  
@@ -427,7 +464,7 @@ class PlotCanvas(FigureCanvas):
 	def plot(self, window=50, start=0):
 
 
-
+		self.window = window 
 		self.axes.set_title(self.title)
 		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
 		ytext = self.axes.set_ylabel('Volts (V)')
