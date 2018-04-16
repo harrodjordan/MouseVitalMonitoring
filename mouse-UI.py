@@ -573,8 +573,9 @@ class PlotCanvas(FigureCanvas):
 		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
 		ytext = self.axes.set_ylabel('Volts (V)')
 		line, = self.axes.plot(self.data[1:window, 0] ,self.data[1:window, 1], self.color)
-		self.fig.canvas.draw_idle()
+		#self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
+		plt.show()
 		plt.pause(0.05)
 
 	
@@ -583,10 +584,10 @@ class PlotCanvas(FigureCanvas):
 			self.axes.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
 			self.axes.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
 			line.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
-			self.fig.canvas.draw_idle()
+			#self.fig.canvas.draw_idle()
+			plt.show()
 			self.fig.canvas.flush_events()
 			plt.pause(0.05)
-			self.fig.show()
 			self.current_time = i
 
 
