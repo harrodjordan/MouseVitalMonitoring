@@ -23,9 +23,9 @@ import matplotlib.pyplot as plt
 import time
 		
 plt.ion()
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-#import PIL.Image
 import os, os.path
 import random
 import argparse
@@ -58,38 +58,39 @@ def readadc(adcnum):
 	GPIO.setup(SPICLK, GPIO.OUT)
 	GPIO.setup(SPICS, GPIO.OUT)
 
-		if ((adcnum > 7) or (adcnum < 0)):
-				return -1
-		GPIO.output(cspin, True)
+	if ((adcnum > 7) or (adcnum < 0)):
+			return -1
+
+	GPIO.output(cspin, True)
  
-		GPIO.output(clockpin, False)  # start clock low
-		GPIO.output(cspin, False)     # bring CS low
+	GPIO.output(clockpin, False)  # start clock low
+	GPIO.output(cspin, False)     # bring CS low
  
-		commandout = adcnum
-		commandout |= 0x18  # start bit + single-ended bit
-		commandout <<= 3    # we only need to send 5 bits here
-		for i in range(5):
-				if (commandout & 0x80):
-						GPIO.output(mosipin, True)
-				else:
-						GPIO.output(mosipin, False)
-				commandout <<= 1
-				GPIO.output(clockpin, True)
-				GPIO.output(clockpin, False)
- 
-		adcout = 0
-		# read in one empty bit, one null bit and 10 ADC bits
-		for i in range(12):
-				GPIO.output(clockpin, True)
-				GPIO.output(clockpin, False)
-				adcout <<= 1
-				if (GPIO.input(misopin)):
-						adcout |= 0x1
- 
-		GPIO.output(cspin, True)
-		
-		adcout >>= 1       # first bit is 'null' so drop it
-		return adcout*3.3/1023
+	commandout = adcnum
+	commandout |= 0x18  # start bit + single-ended bit
+	commandout <<= 3    # we only need to send 5 bits here
+	for i in range(5):
+			if (commandout & 0x80):
+					GPIO.output(mosipin, True)
+			else:
+					GPIO.output(mosipin, False)
+			commandout <<= 1
+			GPIO.output(clockpin, True)
+			GPIO.output(clockpin, False)
+
+	adcout = 0
+	# read in one empty bit, one null bit and 10 ADC bits
+	for i in range(12):
+			GPIO.output(clockpin, True)
+			GPIO.output(clockpin, False)
+			adcout <<= 1
+			if (GPIO.input(misopin)):
+					adcout |= 0x1
+
+	GPIO.output(cspin, True)
+	
+	adcout >>= 1       # first bit is 'null' so drop it
+	return adcout*3.3/1023
  
 
 # GPIO.setup(SPICS, GPIO.OUT)
@@ -593,21 +594,6 @@ class PlotCanvas(FigureCanvas):
 			self.fig.canvas.flush_events()
 			plt.pause(0.05)
 			self.current_time = i
-
-
-
-			
-			
-		
-
-			# 
-			# print(data[i:i+5,:])
-			# self.fig.canvas.draw()
-			# plt.pause(0.001)
-
-
-
-
 
 
 	
