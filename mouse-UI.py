@@ -31,9 +31,7 @@ import random
 import argparse
 import sys
 import csv
-import scipy.io
-import tkinter as tk
-from tkinter import filedialog
+
 from numpy import genfromtxt
 
 # use patient monitoring systems as a design model 
