@@ -93,8 +93,6 @@ def readadc(adcnum):
 	return adcout*3.3/1023
  
 
-# GPIO.setup(SPICS, GPIO.OUT)
- 
 # # 10k trim pot connected to adc #0
 # potentiometer_adc = 0;
  
@@ -238,8 +236,6 @@ class MainWindow(QMainWindow):
 		box_TEMPgraph.addWidget(self.lbl_TEMP)
 
 
-
-
 		# Frames for vitals 
 
 		topleft = QFrame(self)
@@ -325,7 +321,6 @@ class MainWindow(QMainWindow):
 
 		TEMPchangeWindowSize = QAction('Change Temperature Window Size', self)
 		TEMPchangeWindowSize.triggered.connect(lambda: self.TEMPwindowSizeInput()) 
-
 
 
 		recordingMenu.addAction(HRchangeWindowSize)
@@ -467,7 +462,7 @@ class MainWindow(QMainWindow):
 		self.lbl_TEMP.plot([self.model[1], self.model[4]])
 
 
-	def writeCsv(self, fileName):
+	def writeCsv(self, fileName, ):
 
 		cwd = os.getcwd()
 
@@ -593,6 +588,7 @@ class PlotCanvas(FigureCanvas):
 			self.fig.canvas.draw_idle()
 			self.fig.canvas.flush_events()
 			plt.pause(0.05)
+			self.fig.show()
 			self.current_time = i
 
 
