@@ -22,7 +22,7 @@ def ConvertTemp(data, places):
 	temp = round(temp, places)
 	return temp 
 
-temp_chan0 = 0
+temp_chan0 = 1
 delay = 1
 print "temp_level temp_volts temp"
 
