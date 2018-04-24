@@ -9,7 +9,7 @@ def ReadChannel(chan):
 	if((chan<0) or (chan>7)):
 		return -1
 	adc = spi.xfer2([1, (8 + chan) << 4, 0])
-	data = ((adc[1]&3) << 8) + acd[2]
+	data = ((adc[1]&3) << 8) + adc[2]
 	return data 
 
 def ConvertVolts(data, places):
