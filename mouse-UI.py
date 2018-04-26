@@ -16,6 +16,42 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, QFrame, QSplitter, QStyleFactory, QLCDNumber, QLabel, QInputDialog
 
+import spidev 
+import time 
+import os
+import pywt 
+import scipy
+from scipy import signal 
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
+
+SPI_PORT = 0
+SPI_DEVICE = 0
+
+mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
+
+
+def ReadChannel(chan):
+	if((chan<0) or (chan>7)):
+		return -1
+	for i in range(8):
+		values[i] = mcp.read_adc(i)
+	return data 
+
+def ConvertVolts(data, places):
+	volts = (data * 3.3)/1023
+	volts = round(volts, places)
+	return volts 
+
+def ConvertTemp(data, places):
+	temp = ((data * 330)/1023) - 50
+	temp = round(temp, places)
+	return temp 
+
+def WaveletTransform(data):
+	cA, cD = pywt.dwt(data, 'db1')
+	return cA
+
 
 
 import numpy as np
@@ -38,10 +74,7 @@ from numpy import genfromtxt
 
 import time
 import os
-import RPi.GPIO as GPIO
- 
-GPIO.setmode(GPIO.BCM)
-DEBUG = 1
+
  
 # read SPI data from MCP3008 chip, 8 possible adc's (0 thru 7)
 def readadc(adcnum):
@@ -89,53 +122,7 @@ def readadc(adcnum):
 	
 	adcout >>= 1       # first bit is 'null' so drop it
 	return adcout*3.3/1023
- 
 
-# # 10k trim pot connected to adc #0
-# potentiometer_adc = 0;
- 
-# last_read = 0       # this keeps track of the last potentiometer value
-# tolerance = 5       # to keep from being jittery we'll only change
-# 					# volume when the pot has moved more than 5 'counts'
- 
-# while True:
-# 		# we'll assume that the pot didn't move
-# 		trim_pot_changed = False
- 
-# 		# read the analog pin
-# 		trim_pot = readadc(potentiometer_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
-# 		# how much has it changed since the last read?
-# 		pot_adjust = abs(trim_pot - last_read)
- 
-# 		if DEBUG:
-# 				print "trim_pot:", trim_pot
-# 				print "pot_adjust:", pot_adjust
-# 				print "last_read", last_read
- 
-# 		if ( pot_adjust > tolerance ):
-# 			   trim_pot_changed = True
- 
-# 		if DEBUG:
-# 				print "trim_pot_changed", trim_pot_changed
- 
-# 		if ( trim_pot_changed ):
-# 				set_volume = trim_pot / 10.24           # convert 10bit adc0 (0-1024) trim pot read into 0-100 volume level
-# 				set_volume = round(set_volume)          # round out decimal value
-# 				set_volume = int(set_volume)            # cast volume as integer
- 
-# 				print 'Volume = {volume}%' .format(volume = set_volume)
-# 				set_vol_cmd = 'sudo amixer cset numid=1 -- {volume}% > /dev/null' .format(volume = set_volume)
-# 				os.system(set_vol_cmd)  # set volume
- 
-# 				if DEBUG:
-# 						print "set_volume", set_volume
-# 						print "tri_pot_changed", set_volume
- 
-# 				# save the potentiometer reading for the next loop
-# 				last_read = trim_pot
- 
-# 		# hang out and do nothing for a half second
-# 		time.sleep(0.5)
 
 
 class MainWindow(QMainWindow):
@@ -164,6 +151,15 @@ class MainWindow(QMainWindow):
 		self.lcd_BR = QLCDNumber(self)
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
+
+		self.volt_hr = None
+		self.real_hr = None
+
+		self.volt_br = None
+		self.real_br = None
+
+		self.volt_temp = None
+		self.real_temp = None
 
 		self.initUI()
 
@@ -492,22 +488,114 @@ class MainWindow(QMainWindow):
 
 # TODO - Implement these methods 
 
-	# def analyzeHR(self):
+	 def analyzeHR(self, run=True):
 		
-		
+		HR_ADCchan = 1
+
+		run = True 
+
+		all_data = []
+		all_hr = []
+
+		while run: 
+
+			Value = []
+			HR = []
+
+			for i in range(10):
+				hr_level = ReadChannel(HR_ADCchan)
+				hr_value = ConvertVolts(hr_level, 2)
+				hr = ConvertTemp(hr_level, 2)
+
+				Value.append(hr_value)
+				HR.append(hr)
+
+			all_data.append(HR)
+			HR_Wave = WaveletTransform(HR)
+			peakind = signal.find_peaks_cwt(HR_wave, np.arange(1,1000))
+
+			dist = []
+
+
+			for i in range(length(peakind - 2)):
+
+				dist.append(peakind[i+1] - peakind[i])
+
+			heart_rate = np.mean(1./dist) 
+			all_hr.append(heart_rate)
+			lcd_HR.display(heart_rate)
+
+
+		self.volt_hr = all_data
+		self.real_hr = all_hr
 
 
 
-	# def analyzeBR(self):
+	 def analyzeBR(self, run=True):
 
-		
+		BR_ADCchan = 2
+
+		all_data = []
+		all_br = []
+
+		run = True 
+
+		while run: 
+
+			Value = []
+			BR = []
+
+			for i in range(10):
+				br_level = ReadChannel(BR_ADCchan)
+				br_value = ConvertVolts(br_level, 2)
+				br = ConvertTemp(hr_level, 2)
+
+				Value.append(br_value)
+				BR.append(br)
+
+			all_data.append(BR)
+			BR_Wave = WaveletTransform(BR)
+			peakind = signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
+
+			dist = []
+
+			for i in range(length(peakind - 2)):
+
+				dist.append(peakind[i+1] - peakind[i])
+
+			breath_rate = np.mean(1./dist) 
+			all_br.append(breath_rate)
+			lcd_BR.display(breath_rate)
+
+		self.volt_br = all_data
+		self.real_br = all_br
 
 
-	# def analyzeTEMP(self):
-		
+	 def analyzeTEMP(self, run=True):
 
+	 	Temp_ADCchan = 3
 
-# TODO - manually adjustable sliding window, plot reset based on “start time”
+		Temp = []
+
+		all_data = []
+		all_temp = []
+
+		while run: 
+
+			temp_level = ReadChannel(HR_ADCchan)
+			temp_value = ConvertVolts(temp_level, 2)
+			temp = ConvertTemp(temp_level, 2)
+
+			all_temp.append(temp)
+			all_data.append(temp_value)
+
+			lcd_BR.display(temp)
+
+			time.sleep(5)
+
+		self.volt_temp = all_data
+		self.real_temp = all_temp
+
 
 class PlotCanvas(FigureCanvas):
 

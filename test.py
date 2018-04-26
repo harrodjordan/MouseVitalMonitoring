@@ -487,18 +487,6 @@ class PlotCanvas(FigureCanvas):
 
 
 
-			
-			
-		
-
-			# 
-			# print(data[i:i+5,:])
-			# self.fig.canvas.draw()
-			# plt.pause(0.001)
-
-
-
-
 
 
 	
