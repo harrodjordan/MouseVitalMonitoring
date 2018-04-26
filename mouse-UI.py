@@ -554,7 +554,7 @@ class PlotCanvas(FigureCanvas):
 		self.real_br = all_br
 
 
-	 def analyzeTEMP(self, run=True):
+	def analyzeTEMP(self, run=True):
 
 	 	Temp_ADCchan = 3
 
