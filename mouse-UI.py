@@ -557,15 +557,12 @@ class PlotCanvas(FigureCanvas):
 	def analyzeTEMP(self, run=True):
 
 	 	Temp_ADCchan = 3
-
-		Temp = []
-
 		all_data = []
 		all_temp = []
 
 		while run: 
 
-			temp_level = ReadChannel(HR_ADCchan)
+			temp_level = ReadChannel(Temp_ADCchan)
 			temp_value = ConvertVolts(temp_level, 2)
 			temp = ConvertTemp(temp_level, 2)
 
