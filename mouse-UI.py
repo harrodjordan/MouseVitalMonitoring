@@ -556,7 +556,7 @@ class PlotCanvas(FigureCanvas):
 
 	def analyzeTEMP(self, run=True):
 
-	 	Temp_ADCchan = 3
+		Temp_ADCchan = 3
 		all_data = []
 		all_temp = []
 
