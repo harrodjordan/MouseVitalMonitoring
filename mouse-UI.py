@@ -34,8 +34,8 @@ mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 def ReadChannel(chan):
 	if((chan<0) or (chan>7)):
 		return -1
-	for i in range(8):
-		values[i] = mcp.read_adc(i)
+
+	data = mcp.read_adc(chan)
 	return data 
 
 def ConvertVolts(data, places):
@@ -52,6 +52,10 @@ def WaveletTransform(data):
 	cA, cD = pywt.dwt(data, 'db1')
 	return cA
 
+#channel 0 = HR
+#channel 1 = BR
+#channel 2 = Temp 
+#channel 3 = direction - NOT READING IN 
 
 
 import numpy as np
@@ -76,54 +80,6 @@ import time
 import os
 
  
-# read SPI data from MCP3008 chip, 8 possible adc's (0 thru 7)
-def readadc(adcnum):
-
-	SPICLK = 18
-	SPIMISO = 23
-	SPIMOSI = 24
-	SPICS = 25
-
-	GPIO.setup(SPIMOSI, GPIO.OUT)
-	GPIO.setup(SPIMISO, GPIO.IN)
-	GPIO.setup(SPICLK, GPIO.OUT)
-	GPIO.setup(SPICS, GPIO.OUT)
-
-	if ((adcnum > 7) or (adcnum < 0)):
-			return -1
-
-	GPIO.output(cspin, True)
- 
-	GPIO.output(clockpin, False)  # start clock low
-	GPIO.output(cspin, False)     # bring CS low
- 
-	commandout = adcnum
-	commandout |= 0x18  # start bit + single-ended bit
-	commandout <<= 3    # we only need to send 5 bits here
-	for i in range(5):
-			if (commandout & 0x80):
-					GPIO.output(mosipin, True)
-			else:
-					GPIO.output(mosipin, False)
-			commandout <<= 1
-			GPIO.output(clockpin, True)
-			GPIO.output(clockpin, False)
-
-	adcout = 0
-	# read in one empty bit, one null bit and 10 ADC bits
-	for i in range(12):
-			GPIO.output(clockpin, True)
-			GPIO.output(clockpin, False)
-			adcout <<= 1
-			if (GPIO.input(misopin)):
-					adcout |= 0x1
-
-	GPIO.output(cspin, True)
-	
-	adcout >>= 1       # first bit is 'null' so drop it
-	return adcout*3.3/1023
-
-
 
 class MainWindow(QMainWindow):
 
@@ -152,14 +108,6 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		self.volt_hr = None
-		self.real_hr = None
-
-		self.volt_br = None
-		self.real_br = None
-
-		self.volt_temp = None
-		self.real_temp = None
 
 		self.initUI()
 
@@ -169,8 +117,6 @@ class MainWindow(QMainWindow):
 
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		self.setWindowTitle(self.title)  
-
-
 
 		#LCDs for numerical vital monitoring 
 
@@ -488,7 +434,44 @@ class MainWindow(QMainWindow):
 
 # TODO - Implement these methods 
 
-	 def analyzeHR(self, run=True):
+
+
+
+
+
+class PlotCanvas(FigureCanvas):
+
+	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
+		plt.ion()
+		self.fig = Figure(figsize=(width, height), dpi=dpi)
+		self.color = color 
+		self.title = title
+		self.current_time = 0
+		self.window = 50
+
+		self.volt_hr = None
+		self.real_hr = None
+
+		self.volt_br = None
+		self.real_br = None
+
+		self.volt_temp = None
+		self.real_temp = None
+
+
+		self.axes = self.fig.add_subplot(111)
+ 
+		FigureCanvas.__init__(self, self.fig)
+		self.setParent(parent)
+ 
+		FigureCanvas.setSizePolicy(self,
+				QtWidgets.QSizePolicy.Expanding,
+				QtWidgets.QSizePolicy.Expanding)
+		FigureCanvas.updateGeometry(self)
+		self.fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
+
+
+	def analyzeHR(self, run=True):
 		
 		HR_ADCchan = 1
 
@@ -531,7 +514,7 @@ class MainWindow(QMainWindow):
 
 
 
-	 def analyzeBR(self, run=True):
+	def analyzeBR(self, run=True):
 
 		BR_ADCchan = 2
 
@@ -596,31 +579,6 @@ class MainWindow(QMainWindow):
 		self.volt_temp = all_data
 		self.real_temp = all_temp
 
-
-class PlotCanvas(FigureCanvas):
-
-	
- 
-	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
-		plt.ion()
-		self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
-		self.fig = Figure(figsize=(width, height), dpi=dpi)
-		self.color = color 
-		self.title = title
-		self.current_time = 0
-		self.window = 50
-
-		self.axes = self.fig.add_subplot(111)
- 
-		FigureCanvas.__init__(self, self.fig)
-		self.setParent(parent)
- 
-		FigureCanvas.setSizePolicy(self,
-				QtWidgets.QSizePolicy.Expanding,
-				QtWidgets.QSizePolicy.Expanding)
-		FigureCanvas.updateGeometry(self)
-		self.fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
-		#self.plot()
  
  
 	def plot(self, pin):
@@ -628,9 +586,8 @@ class PlotCanvas(FigureCanvas):
 		self.window = window 
 		self.axes.set_title(self.title)
 
-		for i in range(60):
-			self.data = self.data.append(readadc(pin))
-			pause(0.05)
+
+		self.data = self.volt_hr
 
 		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
 		ytext = self.axes.set_ylabel('Volts (V)')
