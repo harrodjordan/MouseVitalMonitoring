@@ -378,31 +378,8 @@ class MainWindow(QMainWindow):
 
 	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
 
-	def loadCsv(self):
 
-		root = tk.Tk()
-		root.withdraw()
-
-		fileName = filedialog.askopenfilename(filetypes=(("csv files","*.csv"), ("xls files","*.xls"), ("xlsx files","*.xlsx"), ("txt files","*.txt"), ("all files","*.*")))
-
-		with open(fileName, "rb") as fileInput:
-
-			for row in csv.reader(fileInput): 
-
-				items = [
-					QtGui.QStandardItem(field)
-					for field in row
-				]
-				self.model.appendRow(items)
-
-		writeCsv(fileName)
-
-		self.lbl_HR.plot([self.model[1], self.model[2]])
-		self.lbl_BR.plot([self.model[1], self.model[3]])
-		self.lbl_TEMP.plot([self.model[1], self.model[4]])
-
-
-	def writeCsv(self, fileName, ):
+	def writeCsv(self, fileName):
 
 		cwd = os.getcwd()
 
@@ -538,7 +515,7 @@ class PlotCanvas(FigureCanvas):
 
 			all_data.append(BR)
 			BR_Wave = WaveletTransform(BR)
-			peakind = signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
+			peakind = BR_Wave #signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
 
 			dist = []
 
