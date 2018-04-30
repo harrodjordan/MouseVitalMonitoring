@@ -21,7 +21,7 @@ import time
 import os
 import pywt 
 import scipy
-from scipy import signal 
+#from scipy import signal 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_MCP3008
 
