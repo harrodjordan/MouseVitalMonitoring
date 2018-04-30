@@ -22,7 +22,7 @@ import os
 import pywt 
 import scipy
 #from scipy import signal 
-import Adafruit_GPIO.SPI as SPI
+#import Adafruit_GPIO.SPI as SPI
 import Adafruit_MCP3008
 
 SPI_PORT = 0
