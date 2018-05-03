@@ -542,7 +542,7 @@ class PlotCanvas(FigureCanvas):
 
 	def addToBuf(self, buf, val):
 
-		if len(buf) < self.maxLen:
+		if len(buf) < self.window:
 			buf.append(val)
 		else:
 			buf.pop()
