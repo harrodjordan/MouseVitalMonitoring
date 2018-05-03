@@ -25,6 +25,7 @@ from scipy import signal
 import Adafruit_GPIO.SPI as SPI
 import 	Adafruit_Python_MCP3008.Adafruit_MCP3008 as Adafruit_MCP3008 
 import pandas as pd
+from collections import deque
 import RPi.GPIO as GPIO
 
 SPI_PORT=0
@@ -520,6 +521,13 @@ class PlotCanvas(FigureCanvas):
 		self.HR = self.fig.add_subplot(311)
 		self.BR = self.fig.add_subplot(312)
 		self.Temp = self.fig.add_subplot(313)
+
+		self.hr_y = deque([0.0]*self.window)
+		self.br_y = deque([0.0]*self.window)
+		self.temp_y = deque([0.0]*self.window)
+		self.x = deque([0.0]*self.window)
+
+		self.start = 0
  
 		FigureCanvas.__init__(self, self.fig)
 		self.setParent(parent)
@@ -531,6 +539,24 @@ class PlotCanvas(FigureCanvas):
 		self.fig.tight_layout(pad=1, w_pad=0.1, h_pad=0.1)
 
 		print("Initializing PlotCanvas")
+
+  	def addToBuf(self, buf, val):
+
+      	if len(buf) < self.maxLen:
+          	buf.append(val)
+      	else:
+          	buf.pop()
+          	buf.appendleft(val)
+
+  # add data
+  	def add(self, buf, chan, time = False):
+      	
+      	if time == False: 
+      	
+      		self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
+
+  		else::
+  			self.addToBuf(buf, time.time()-self.start)
 
 
 	def plot(self, window=50, start=0):
@@ -550,9 +576,11 @@ class PlotCanvas(FigureCanvas):
 		xtext_temp = self.Temp.set_xlabel('Time (s)') # returns a Text instance
 		ytext_temp = self.Temp.set_ylabel('Volts (V)')
 
-		line_hr, = self.HR.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-g')
-		line_br, = self.BR.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-c')
-		line_temp, = self.Temp.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-r')
+		self.start = time.time()
+
+		line_hr, = self.HR.plot(self.x ,self.hr_y, '-g')
+		line_br, = self.BR.plot(self.x ,self.br_y, 1, '-c')
+		line_temp, = self.Temp.plot(self.x, self.temp_y, '-r')
 
 		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
@@ -561,17 +589,23 @@ class PlotCanvas(FigureCanvas):
 
 	
 		for i in range(len(self.data)):
-			self.HR.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.HR.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line_hr.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
 
-			self.BR.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.BR.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line_br.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
+			self.add(self.x, 0, time = True)
+			self.add(self.hr_y, 0)
+			self.add(self.br_y, 1)
+			self.add(self.temp_y, 2)
 
-			self.Temp.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.Temp.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line_temp.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
+			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
+			self.HR.set_xlim(min(self.x), max(self.x))
+			line_hr.set_data(self.x, self.hr_y)
+
+			self.BR.set_ylim(min(self.br_y), max(self.br_y))
+			self.BR.set_xlim(min(self.x), max(self.x))
+			line_br.set_data(self.x, self.br_y)
+
+			self.Temp.set_ylim(min(self.temp_y), max(self.temp_y))
+			self.Temp.set_xlim(min(self.x), max(self.x))
+			line_temp.set_data(self.x, self.temp_y)
 
 
 			self.fig.canvas.draw_idle()
