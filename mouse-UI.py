@@ -511,7 +511,7 @@ class PlotCanvas(FigureCanvas):
 	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
 
 		plt.ion()
-		self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
+		#self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
 		self.fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
 		self.title = title
@@ -549,7 +549,7 @@ class PlotCanvas(FigureCanvas):
 			buf.appendleft(val)
 
   # add data
-	def add(self, buf, chan, time = False):
+	def add(self, buf, chan, time_check = False):
 		
 		if time == False: 
 		
@@ -590,7 +590,7 @@ class PlotCanvas(FigureCanvas):
 	
 		for i in range(len(self.data)):
 
-			self.add(self.x, 0, time = True)
+			self.add(self.x, 0, time_check = True)
 			self.add(self.hr_y, 0)
 			self.add(self.br_y, 1)
 			self.add(self.temp_y, 2)
