@@ -98,8 +98,8 @@ class MainWindow(QMainWindow):
 		self.left = 10
 		self.top = 10
 		self.title = 'Rodent Vitals Monitoring Software Demo'
-		self.width = 600
-		self.height = 400
+		self.width = 700
+		self.height = 500
 		self.model = [] 
 
 		#Matplotlib graphs 
@@ -113,7 +113,7 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		p = GPIO.PWM(5, 50)  # channel=5 frequency=50Hz
+		p = GPIO.PWM(5, 10)  # channel=5 frequency=50Hz
 		control = PID()
 		control.setPoint(set_point=37)
 		p.start(0)
