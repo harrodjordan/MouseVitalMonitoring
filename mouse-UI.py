@@ -29,8 +29,8 @@ import RPi.GPIO as GPIO
 
 SPI_PORT=0
 SPI_DEVICE=0
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(5, GPIO.OUT) 
+#GPIO.setmode(GPIO.BOARD)
+#GPIO.setup(5, GPIO.OUT) 
 
 
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
@@ -113,10 +113,10 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		p = GPIO.PWM(5, 10)  # channel=5 frequency=50Hz
-		control = PID()
-		control.setPoint(set_point=37)
-		p.start(0)
+		#p = GPIO.PWM(5, 10)  # channel=5 frequency=50Hz
+		#control = PID()
+		#control.setPoint(set_point=37)
+		#p.start(0)
 
 		print("Initializing MainWindow")
 
