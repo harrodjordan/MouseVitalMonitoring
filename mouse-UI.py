@@ -579,7 +579,7 @@ class PlotCanvas(FigureCanvas):
 		self.start = time.time()
 
 		line_hr, = self.HR.plot(self.x ,self.hr_y, '-g')
-		line_br, = self.BR.plot(self.x ,self.br_y, 1, '-c')
+		line_br, = self.BR.plot(self.x ,self.br_y,  '-c')
 		line_temp, = self.Temp.plot(self.x, self.temp_y, '-r')
 
 		self.fig.canvas.draw_idle()
