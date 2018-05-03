@@ -540,23 +540,23 @@ class PlotCanvas(FigureCanvas):
 
 		print("Initializing PlotCanvas")
 
-  	def addToBuf(self, buf, val):
+	def addToBuf(self, buf, val):
 
-      	if len(buf) < self.maxLen:
-          	buf.append(val)
-      	else:
-          	buf.pop()
-          	buf.appendleft(val)
+		if len(buf) < self.maxLen:
+			buf.append(val)
+		else:
+			buf.pop()
+			buf.appendleft(val)
 
   # add data
-  	def add(self, buf, chan, time = False):
-      	
-      	if time == False: 
-      	
-      		self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
+	def add(self, buf, chan, time = False):
+		
+		if time == False: 
+		
+			self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
 
-  		else::
-  			self.addToBuf(buf, time.time()-self.start)
+		else::
+			self.addToBuf(buf, time.time()-self.start)
 
 
 	def plot(self, window=50, start=0):
