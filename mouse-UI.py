@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
 
 		p = GPIO.PWM(5, 50)  # channel=5 frequency=50Hz
 		control = PID()
-		control.setpoint(set_point=37)
+		control.setPoint(set_point=37)
 		p.start(0)
 
 
