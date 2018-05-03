@@ -556,7 +556,7 @@ class PlotCanvas(FigureCanvas):
 			self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
 
 		else:
-			self.addToBuf(buf, time.time()-self.start)
+			self.addToBuf(buf, (time.time()-self.start))
 
 
 	def plot(self, window=50, start=0):
