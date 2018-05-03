@@ -553,7 +553,7 @@ class PlotCanvas(FigureCanvas):
 		
 		if time_check == False: 
 		
-			self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
+			self.addToBuf(buf, ConvertVolts(ReadChannel(chan), 2))
 			print(ConvertVolts(ReadChannel(chan)))
 
 		else:
