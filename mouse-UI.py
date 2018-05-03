@@ -370,7 +370,7 @@ class MainWindow(QMainWindow):
 
 			all_data.append(BR)
 			BR_Wave = WaveletTransform(BR)
-			peakind = BR_Wave #signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
+			peakind = signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
 
 			dist = []
 
@@ -423,7 +423,7 @@ class MainWindow(QMainWindow):
 
 			direction = 0
 
-		
+
 		p.start(1)
 
 
