@@ -98,8 +98,8 @@ class MainWindow(QMainWindow):
 		self.left = 10
 		self.top = 10
 		self.title = 'Rodent Vitals Monitoring Software Demo'
-		self.width = 120
-		self.height = 120
+		self.width = 600
+		self.height = 400
 		self.model = [] 
 
 		#Matplotlib graphs 
@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
 		control.setPoint(set_point=37)
 		p.start(0)
 
-
+		print("Initializing MainWindow")
 
 
 		self.initUI()
@@ -297,6 +297,8 @@ class MainWindow(QMainWindow):
 		self.toolbar.addAction(startAct)
 		self.toolbar.addAction(exportRawAct)
 		self.toolbar.addAction(exportAct)
+
+		print("Creating toolbar menus and displaying window")
 		#Setting window size and showing
   
 		self.show()
@@ -528,6 +530,8 @@ class PlotCanvas(FigureCanvas):
 		FigureCanvas.updateGeometry(self)
 		self.fig.tight_layout(pad=1, w_pad=0.1, h_pad=0.1)
 
+		print("Initializing PlotCanvas")
+
 
 	def plot(self, window=50, start=0):
 
@@ -600,6 +604,8 @@ class PID:
 
 		self.set_point=0.0
 		self.error=0.0
+
+		print("Initializing PID")
 
 	def update(self,current_value):
 		"""
