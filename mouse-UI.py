@@ -23,10 +23,12 @@ import pywt
 import scipy
 from scipy import signal 
 import Adafruit_GPIO.SPI as SPI
-import 	Adafruit_Python_MCP3008.Adafruit_MCP3008 as Adafruit_MCP3008
+import 	Adafruit_Python_MCP3008.Adafruit_MCP3008 as Adafruit_MCP3008 
+import pandas as pd
+import RPi.GPIO as GPIO
 
-SPI_PORT = 0
-SPI_DEVICE = 0
+
+
 
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 
@@ -49,7 +51,7 @@ def ConvertTemp(data, places):
 	return temp 
 
 def WaveletTransform(data):
-	cA, cD = pywt.dwt(data, 'db1')
+	cA, cD = pywt.dwt(data, 'db4')
 	return cA
 
 #channel 0 = HR
@@ -57,12 +59,14 @@ def WaveletTransform(data):
 #channel 2 = Temp 
 #channel 3 = direction - NOT READING IN 
 
+#GPIO5 = toggle pzt 
+
 
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 		
-plt.ion()
+
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -91,22 +95,27 @@ class MainWindow(QMainWindow):
 		self.left = 10
 		self.top = 10
 		self.title = 'Rodent Vitals Monitoring Software Demo'
-		self.width = 1200
-		self.height = 1200
+		self.width = 120
+		self.height = 120
 		self.model = [] 
 
 		#Matplotlib graphs 
 
 
-		self.lbl_TEMP = PlotCanvas(title='Subject Temperature (Celsius)', color='r-')
-		self.lbl_HR = PlotCanvas(title='Heart Rate (beats/min)', color='g-')
-		self.lbl_BR = PlotCanvas(title='Breathing Rate (breaths/min)', color='b-')
+		self.lbl = PlotCanvas()
 
 		#LCDs for numerical vital monitoring 
 
 		self.lcd_BR = QLCDNumber(self)
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
+
+		p = GPIO.PWM(5, 50)  # channel=5 frequency=50Hz
+		control = PID()
+		control.setpoint(set_point=37)
+		p.start(0)
+
+
 
 
 		self.initUI()
@@ -167,67 +176,53 @@ class MainWindow(QMainWindow):
 		box_TEMPLCD.addWidget(self.lcd_TEMP)
 
 
-		box_HRgraph = QHBoxLayout(self)
-		box_BRgraph = QHBoxLayout(self)
-		box_TEMPgraph = QHBoxLayout(self)
+		box_graph = QHBoxLayout(self)
 
-		box_HRgraph.addWidget(self.lbl_HR)
-		box_BRgraph.addWidget(self.lbl_BR)
-		box_TEMPgraph.addWidget(self.lbl_TEMP)
+		box_graph.addWidget(self.lbl)
 
 
-		# Frames for vitals 
+		left = QFrame(self)
+		left.setFrameShape(QFrame.Box)
 
-		topleft = QFrame(self)
-		topleft.setFrameShape(QFrame.Box)
+
 
 		topright = QFrame(self)
 		topright.setFrameShape(QFrame.Box)
 
-		middleleft = QFrame(self)
-		middleleft.setFrameShape(QFrame.Box)
-
 		middleright = QFrame(self)
 		middleright.setFrameShape(QFrame.Box)
-
-		bottomleft = QFrame(self)
-		bottomleft.setFrameShape(QFrame.Box)
 
 		bottomright = QFrame(self)
 		bottomright.setFrameShape(QFrame.Box)
 
-		topleft.setLayout(box_HRgraph)
+		left.setLayout(box_graph)
 		topright.setLayout(box_HRLCD)
 
-		middleleft.setLayout(box_BRgraph)
 		middleright.setLayout(box_BRLCD)
 
-		bottomleft.setLayout(box_TEMPgraph)
+
 		bottomright.setLayout(box_TEMPLCD)
 
 
 		# Splitting frames and adding layout to window 
 
 
-		splitter1 = QSplitter(Qt.Horizontal)
-		splitter1.addWidget(topleft)
+		splitter1 = QSplitter(Qt.Vertical)
 		splitter1.addWidget(topright)
+		splitter1.addWidget(middleright)
 
-		splitter2 = QSplitter(Qt.Horizontal)
-		splitter2.addWidget(middleleft)
-		splitter2.addWidget(middleright)
+		splitter2 = QSplitter(Qt.Vertical)
+		splitter2.addWidget(splitter1)
+		splitter2.addWidget(bottomright)
 
 		splitter3 = QSplitter(Qt.Horizontal)
-		splitter3.addWidget(bottomleft)
-		splitter3.addWidget(bottomright)
+		splitter3.addWidget(left)
+		splitter3.addWidget(splitter2)
 
-		splitter4 = QSplitter(Qt.Vertical)
-		splitter4.addWidget(splitter1)
-		splitter4.addWidget(splitter2)
-		splitter4.addWidget(splitter3)
 
-		box.addWidget(splitter4)
-		wid.setLayout(box)    
+		box.addWidget(splitter3)
+		wid.setLayout(box)   
+
 
 	
 		menubar = self.menuBar()
@@ -250,22 +245,14 @@ class MainWindow(QMainWindow):
 		
 		newAct = QAction('New', self)       
 
-		HRchangeWindowSize = QAction('Change HR Window Size', self)
-		HRchangeWindowSize.triggered.connect(lambda: self.HRwindowSizeInput()) 
+		changeWindowSize = QAction('Change Window Size', self)
+		changeWindowSize.triggered.connect(lambda: self.windowSizeInput()) 
 
 		resetWindow = QAction('Reset Window to Present', self)
 		resetWindow.triggered.connect(lambda: self.windowReset())
 
-		BRchangeWindowSize = QAction('Change BR Window Size', self)
-		BRchangeWindowSize.triggered.connect(lambda: self.BRwindowSizeInput()) 
 
-		TEMPchangeWindowSize = QAction('Change Temperature Window Size', self)
-		TEMPchangeWindowSize.triggered.connect(lambda: self.TEMPwindowSizeInput()) 
-
-
-		recordingMenu.addAction(HRchangeWindowSize)
-		recordingMenu.addAction(BRchangeWindowSize)
-		recordingMenu.addAction(TEMPchangeWindowSize)
+		recordingMenu.addAction(changeWindowSize)
 
 		recordingMenu.addAction(resetWindow)
 
@@ -286,167 +273,35 @@ class MainWindow(QMainWindow):
 		#Making the toolbar 
 
 		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
-		exitAct.setShortcut('Ctrl+Q')
 		exitAct.triggered.connect(lambda: sys.exit())
 
-		saveAct = QAction(QIcon('48-512.png'), 'Save', self)
-		saveAct.setShortcut('Ctrl+S')
-		saveAct.triggered.connect(lambda: self.saveData)
+		exportAct = QAction(QIcon('document.png'), 'Export Vitals', self)
+		exportAct.triggered.connect(lambda: self.writeRealCsv())
 
-		importAct = QAction(QIcon('512x512.png'), 'Import', self)
-		importAct.setShortcut('Ctrl+I')
-		importAct.triggered.connect(lambda: self.saveData)
+		exportRawAct = QAction(QIcon('document.png'), 'Export Raw Data', self)
+		exportRawAct.triggered.connect(lambda: self.writeVoltageCsv())
 
-		exportAct = QAction(QIcon('document.png'), 'Export', self)
-		exportAct.setShortcut('Ctrl+E')
-		exportAct.triggered.connect(lambda: self.saveData)
+		startAct = QAction(QIcon('document.png'), 'Start', self)
+		startAct.triggered.connect(lambda: self.startAll())
 
-		plotHRAct = QAction(QIcon('200px-Love_Heart_SVG.svg.png'), 'Record HR', self)
-		plotHRAct.triggered.connect(lambda: self.lbl_HR.plot())
-
-		plotBRAct = QAction(QIcon('980935_964a998538bc4052b413da77b99d4759~mv2.png'), 'Record BR', self)
-		plotBRAct.triggered.connect(lambda: self.lbl_BR.plot())
-
-		plotTempAct = QAction(QIcon('Screen Shot 2018-04-11 at 12.37.24 PM.png'), 'Record Temp', self)
-		plotTempAct.triggered.connect(lambda: self.lbl_TEMP.plot())
 		
 		self.toolbar = self.addToolBar('Exit')
 		self.toolbar = self.addToolBar('Save')
-		self.toolbar = self.addToolBar('Import')
 		self.toolbar = self.addToolBar('Export')
-		self.toolbar = self.addToolBar('Record HR')
-		self.toolbar = self.addToolBar('Record BR')
-		self.toolbar = self.addToolBar('Record TEMP')
+		self.toolbar = self.addToolBar('Export')
 
 		self.toolbar.addAction(exitAct)
-		self.toolbar.addAction(saveAct)
-		self.toolbar.addAction(importAct)
+		self.toolbar.addAction(startAct)
+		self.toolbar.addAction(exportRawAct)
 		self.toolbar.addAction(exportAct)
-		self.toolbar.addAction(plotHRAct)
-		self.toolbar.addAction(plotBRAct)
-		self.toolbar.addAction(plotTempAct)
-
 		#Setting window size and showing
   
 		self.show()
 
-	def HRwindowSizeInput(self):
-
-		# open a smaller window with a numerical input option 
-
-		num,ok = QInputDialog.getInt(self,"HR Window Dialog","enter a number")
-		
-		if ok:
-			newSize = num
-			self.lbl_HR.plot(window=newSize, start = self.lbl_HR.current_time)
-
-	def HRwindowSizeInput(self):
-
-		# open a smaller window with a numerical input option 
-
-		num,ok = QInputDialog.getInt(self,"BR Window Dialog","enter a number")
-		
-		if ok:
-			newSize = num
-			self.lbl_BR.plot(window=newSize, start = self.lbl_BR.current_time)
-
-	def HRwindowSizeInput(self):
-
-		# open a smaller window with a numerical input option 
-
-		num,ok = QInputDialog.getInt(self,"Temperature Window Dialog","enter a number")
-		
-		if ok:
-			newSize = num
-			self.lbl_TEMP.plot(window=newSize, start = self.lbl_TEMP.current_time)
-
-
-	def windowReset(self):
-
-		self.lbl_HR.plot(window = self.lbl_HR.window, start = self.lbl_HR.current_time)
-		self.lbl_BR.plot(window = self.lbl_BR.window, start = self.lbl_BR.current_time)
-		self.lbl_TEMP.plot(window = self.lbl_TEMP.window, start = self.lbl_TEMP.current_time)
-
-
-	
-	def toggleMenu(self, state):
-		
-		if state:
-			self.statusbar.show()
-		else:
-			self.statusbar.hide()
-
-	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
-
-
-	def writeCsv(self, fileName):
-
-		cwd = os.getcwd()
-
-		fileName = cwd + fileName
-
-		with open(fileName, "wb") as fileOutput:
-
-			writer = csv.writer(fileOutput)
-
-			for rowNumber in range(self.model.rowCount()):
-				fields = [
-					self.model.data(
-						self.model.index(rowNumber, columnNumber),
-						QtCore.Qt.DisplayRole
-					)
-					for columnNumber in range(self.model.columnCount())
-				]
-
-				writer.writerow(fields)
-
-	def saveData(self):
-
-		data = self.model
-
-	def exportData(self):
-
-		data = self.model 
-
-
-# TODO - Implement these methods 
-
-
-
-
-
-
-class PlotCanvas(FigureCanvas):
-
-	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
-		plt.ion()
-		self.fig = Figure(figsize=(width, height), dpi=dpi)
-		self.color = color 
-		self.title = title
-		self.current_time = 0
-		self.window = 50
-
-		self.volt_hr = None
-		self.real_hr = None
-
-		self.volt_br = None
-		self.real_br = None
-
-		self.volt_temp = None
-		self.real_temp = None
-
-
-		self.axes = self.fig.add_subplot(111)
- 
-		FigureCanvas.__init__(self, self.fig)
-		self.setParent(parent)
- 
-		FigureCanvas.setSizePolicy(self,
-				QtWidgets.QSizePolicy.Expanding,
-				QtWidgets.QSizePolicy.Expanding)
-		FigureCanvas.updateGeometry(self)
-		self.fig.tight_layout(pad=3, w_pad=0.1, h_pad=0.1)
-
+	def Close(self):
+		p.stop()
+		GPIO.cleanup()
+		sys.exit()
 
 	def analyzeHR(self, run=True):
 		
@@ -553,63 +408,254 @@ class PlotCanvas(FigureCanvas):
 		self.volt_temp = all_data
 		self.real_temp = all_temp
 
- 
- 
-	def plot(self, pin):
+	def tempControl(self):
 
-		self.window = window 
-		self.axes.set_title(self.title)
+		current_value = ConvertTemp(ConvertVolts(ReadChannel(2)))
+
+		newvalue = control.update(current_value=current_value)
+
+		if newvalue > current_value:
+
+			direction = 1
 
 
-		self.data = self.volt_hr
+		else: 
 
-		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
-		ytext = self.axes.set_ylabel('Volts (V)')
-		line, = self.axes.plot(self.data[1:window, 0] ,self.data[1:window, 1], self.color)
-		self.fig.canvas.draw_idle()
-		self.fig.canvas.flush_events()
-		plt.pause(0.05)
+			direction = 0
 
+		
+		p.start(1)
+
+
+
+
+
+	def startAll(self):
+
+		self.lbl.plot()
+		self.displayVitals()
+		self.tempControl()
+
+
+	def windowSizeInput(self):
+
+		# open a smaller window with a numerical input option 
+
+		num,ok = QInputDialog.getInt(self,"Window Dialog","enter a number")
+		
+		if ok:
+			newSize = num
+			self.lbl.plot(window=newSize, start = self.lbl.current_time)
+
+
+	def windowReset(self):
+
+		self.lbl.plot(window = self.lbl.window, start = self.lbl.current_time)
 	
-		for i in range(len(self.data)):
-			self.data = self.data.append(readadc(pin))
-			self.axes.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.axes.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
-			self.fig.canvas.draw_idle()
-			self.fig.canvas.flush_events()
-			plt.pause(0.05)
-			self.current_time = i
+	def toggleMenu(self, state):
+		
+		if state:
+			self.statusbar.show()
+		else:
+			self.statusbar.hide()
 
+	def displayVitals():
+
+		while True:
+
+			#read channels to display vitals 
+
+			lcd_HR.display(np.mean(lbl.real_hr))
+			lcd_BR.display(np.mean(lbl.real_br))
+			lcd_TEMP.display(np.mean(lbl.real_temp))
+
+	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
+
+	def writeVoltageCsv(self, fileName):
+
+		cwd = os.getcwd()
+
+		volt_hr = self.lbl.volt_hr
+		volt_br = self.lbl.volt_br
+		volt_temp = self.lbl.volt_temp
+
+		fileName_volt = cwd + fileName + "Voltage_Data.csv"
+		
+
+		data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
+		data.to_csv(fileName_volt, index=False)
+
+	def writeRealCsv(self, fileName):
+
+		real_hr = self.lbl.real_hr
+		real_br = self.lbl.real_br
+		real_temp = self.lbl.real_temp
+
+		fileName_real = cwd + fileName + "Vital_Data.csv"
+
+		data = pd.DataFrame({'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
+		data.to_csv(fileName_real, index=False)
+
+
+
+# TODO - Implement these methods 
+
+class PlotCanvas(FigureCanvas):
+
+	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
+
+		plt.ion()
+		self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
+		self.fig = Figure(figsize=(width, height), dpi=dpi)
+		self.color = color 
+		self.title = title
+		self.current_time = 0
+		self.window = 50
+
+		self.HR = self.fig.add_subplot(311)
+		self.BR = self.fig.add_subplot(312)
+		self.Temp = self.fig.add_subplot(313)
+ 
+		FigureCanvas.__init__(self, self.fig)
+		self.setParent(parent)
+ 
+		FigureCanvas.setSizePolicy(self,
+				QtWidgets.QSizePolicy.Expanding,
+				QtWidgets.QSizePolicy.Expanding)
+		FigureCanvas.updateGeometry(self)
+		self.fig.tight_layout(pad=1, w_pad=0.1, h_pad=0.1)
 
 
 	def plot(self, window=50, start=0):
 
 
 		self.window = window 
-		self.axes.set_title(self.title)
+		self.HR.set_title('Heart Rate')
+		self.BR.set_title('Breathing Rate')
+		self.Temp.set_title('Current Temperature')
 
-		xtext = self.axes.set_xlabel('Time (s)') # returns a Text instance
-		ytext = self.axes.set_ylabel('Volts (V)')
-		line, = self.axes.plot(self.data[1:window, 0] ,self.data[1:window, 1], self.color)
-		#self.fig.canvas.draw_idle()
+		xtext_hr = self.HR.set_xlabel('Time (s)') # returns a Text instance
+		ytext_hr = self.HR.set_ylabel('Volts (V)')
+
+		xtext_br = self.BR.set_xlabel('Time (s)') # returns a Text instance
+		ytext_br = self.BR.set_ylabel('Volts (V)')
+
+		xtext_temp = self.Temp.set_xlabel('Time (s)') # returns a Text instance
+		ytext_temp = self.Temp.set_ylabel('Volts (V)')
+
+		line_hr, = self.HR.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-g')
+		line_br, = self.BR.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-c')
+		line_temp, = self.Temp.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-r')
+
+		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
-		plt.show()
+
 		plt.pause(0.05)
 
 	
 		for i in range(len(self.data)):
+			self.HR.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
+			self.HR.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
+			line_hr.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
 
-			self.axes.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.axes.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
-			#self.fig.canvas.draw_idle()
-			plt.show()
+			self.BR.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
+			self.BR.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
+			line_br.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
+
+			self.Temp.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
+			self.Temp.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
+			line_temp.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
+
+
+			self.fig.canvas.draw_idle()
+			
+
 			self.fig.canvas.flush_events()
+			plt.show()
 			plt.pause(0.05)
 			self.current_time = i
 
+		plt.show()
 
+
+
+
+class PID:
+	"""
+	Discrete PID control
+	"""
+
+	def __init__(self, P=2.0, I=0.0, D=1.0, Derivator=0, Integrator=0, Integrator_max=500, Integrator_min=-500):
+
+		self.Kp=P
+		self.Ki=I
+		self.Kd=D
+		self.Derivator=Derivator
+		self.Integrator=Integrator
+		self.Integrator_max=Integrator_max
+		self.Integrator_min=Integrator_min
+
+		self.set_point=0.0
+		self.error=0.0
+
+	def update(self,current_value):
+		"""
+		Calculate PID output value for given reference input and feedback
+		"""
+
+		self.error = self.set_point - current_value
+
+		self.P_value = self.Kp * self.error
+		self.D_value = self.Kd * ( self.error - self.Derivator)
+		self.Derivator = self.error
+
+		self.Integrator = self.Integrator + self.error
+
+		if self.Integrator > self.Integrator_max:
+			self.Integrator = self.Integrator_max
+		elif self.Integrator < self.Integrator_min:
+			self.Integrator = self.Integrator_min
+
+		self.I_value = self.Integrator * self.Ki
+
+		PID = self.P_value + self.I_value + self.D_value
+
+		return PID
+
+	def setPoint(self,set_point):
+		"""
+		Initilize the setpoint of PID
+		"""
+		self.set_point = set_point
+		self.Integrator=0
+		self.Derivator=0
+
+	def setIntegrator(self, Integrator):
+		self.Integrator = Integrator
+
+	def setDerivator(self, Derivator):
+		self.Derivator = Derivator
+
+	def setKp(self,P):
+		self.Kp=P
+
+	def setKi(self,I):
+		self.Ki=I
+
+	def setKd(self,D):
+		self.Kd=D
+
+	def getPoint(self):
+		return self.set_point
+
+	def getError(self):
+		return self.error
+
+	def getIntegrator(self):
+		return self.Integrator
+
+	def getDerivator(self):
+		return self.Derivator
 	
 		
 		
