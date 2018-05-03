@@ -551,7 +551,7 @@ class PlotCanvas(FigureCanvas):
   # add data
 	def add(self, buf, chan, time_check = False):
 		
-		if time == False: 
+		if time_check == False: 
 		
 			self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
 			print(ConvertVolts(ReadChannel(chan)))
