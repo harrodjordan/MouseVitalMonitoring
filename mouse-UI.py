@@ -588,7 +588,7 @@ class PlotCanvas(FigureCanvas):
 		plt.pause(0.05)
 
 	
-		for i in range(len(self.data)):
+		while True:
 
 			self.add(self.x, 0, time_check = True)
 			self.add(self.hr_y, 0)
