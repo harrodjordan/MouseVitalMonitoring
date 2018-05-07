@@ -114,10 +114,10 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		#p = GPIO.PWM(5, 10)  # channel=5 frequency=50Hz
-		#control = PID()
-		#control.setPoint(set_point=37)
-		#p.start(0)
+		p = GPIO.PWM(5, 10)  # channel=5 frequency=50Hz
+		control = PID()
+		control.setPoint(set_point=37)
+		p.start(0)
 
 		print("Initializing MainWindow")
 
