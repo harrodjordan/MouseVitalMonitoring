@@ -24,7 +24,7 @@ import scipy
 from scipy import signal 
 import Adafruit_GPIO.SPI as SPI
 import 	Adafruit_Python_MCP3008.Adafruit_MCP3008 as Adafruit_MCP3008 
-import pandas as pd
+#import pandas as pd
 from collections import deque
 import RPi.GPIO as GPIO
 
@@ -488,8 +488,8 @@ class MainWindow(QMainWindow):
 		fileName_volt = cwd + fileName + "Voltage_Data.csv"
 		
 
-		data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
-		data.to_csv(fileName_volt, index=False)
+		#data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
+		#data.to_csv(fileName_volt, index=False)
 
 	def writeRealCsv(self, fileName):
 
@@ -499,8 +499,8 @@ class MainWindow(QMainWindow):
 
 		fileName_real = cwd + fileName + "Vital_Data.csv"
 
-		data = pd.DataFrame({'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
-		data.to_csv(fileName_real, index=False)
+		#data = pd.DataFrame({'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
+		#data.to_csv(fileName_real, index=False)
 
 
 
