@@ -430,7 +430,7 @@ class MainWindow(QMainWindow):
 
 		while True:
 
-			current_value = ConvertTemp(ConvertVolts(ReadChannel(2)))
+			current_value = ConvertTemp(ConvertVolts(ReadChannel(2), 2), 2)
 			print(current_value)
 
 			newvalue = control.update(current_value=current_value)
