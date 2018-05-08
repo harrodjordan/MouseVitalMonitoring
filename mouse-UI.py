@@ -31,7 +31,9 @@ import RPi.GPIO as GPIO
 SPI_PORT=0
 SPI_DEVICE=0
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(13, GPIO.OUT) 
+GPIO.setup(13, GPIO.OUT)
+GPIO.setup(3, GPIO.OUT)
+
 
 
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
@@ -416,26 +418,33 @@ class MainWindow(QMainWindow):
 
 	def tempControl(self):
 
-		current_value = ConvertTemp(ConvertVolts(ReadChannel(2)))
+		while True:
 
-		newvalue = control.update(current_value=current_value)
+			current_value = ConvertTemp(ConvertVolts(ReadChannel(2)))
 
-		if newvalue > current_value:
+			newvalue = control.update(current_value=current_value)
 
-			direction = 1
+			cycle = 1
 
+			if newvalue > current_value:
 
-		else: 
-
-			direction = 0
-
-
-		p.start(1)
+				direction = 1
 
 
+			else: 
+
+				direction = 0
 
 
+			if newvalue == current_value:
 
+				cycle = 0
+
+			GPIO.output(3, direction)
+			p.start(cycle)
+
+
+		
 	def startAll(self):
 
 		self.lbl.plot()
