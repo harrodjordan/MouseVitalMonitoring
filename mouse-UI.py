@@ -440,7 +440,7 @@ class MainWindow(QMainWindow):
 			newvalue = self.control.update(current_value=current_value)
 			print(newvalue)
 
-			if newvalue > current_value:
+			if newvalue < current_value:
 
 				direction = 0
 
