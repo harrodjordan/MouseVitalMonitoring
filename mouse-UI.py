@@ -33,8 +33,8 @@ SPI_DEVICE=0
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(13, GPIO.OUT)
 print("Initializing PWM Pin")
-GPIO.setup(3, GPIO.OUT)
-print("Initializing Direction Pin")
+#GPIO.setup(3, GPIO.OUT)
+#print("Initializing Direction Pin")
 
 
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
 
 				cycle = 0
 
-			GPIO.output(3, direction)
+			#GPIO.output(3, direction)
 			p.start(cycle)
 
 
