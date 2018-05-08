@@ -450,6 +450,7 @@ class MainWindow(QMainWindow):
 
 
 			#@if newvalue == current_value:
+			print(direction)
 
 			cycle = 100
 
