@@ -430,7 +430,7 @@ class MainWindow(QMainWindow):
 
 	def tempControl(self):
 
-		self.p.start(100)
+		#self.p.start(100)
 
 		while True:
 
@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
 
 				direction = 1
 
-
+			GPIO.output(13, direction)
 			GPIO.output(29, direction)
 			
 			time.sleep(2)
