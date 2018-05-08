@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
 				direction = 4095
 
 
-			#dac.set_voltage(direction)
+			dac.set_voltage(direction)
 			
 			time.sleep(2)
 
