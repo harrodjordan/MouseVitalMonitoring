@@ -453,7 +453,7 @@ class MainWindow(QMainWindow):
 
 				cycle = 10
 
-			dac.set_voltage(direction, True)
+			dac.raw_value = direction
 			self.p.start(cycle)
 			time.sleep(2)
 
