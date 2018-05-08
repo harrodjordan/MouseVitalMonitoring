@@ -29,7 +29,7 @@ from collections import deque
 import RPi.GPIO as GPIO
 
 #Import the MCP4725 module.
-import Adafruit_Python_MCP4725 
+import Adafruit_Python_MCP4725.Adafruit_MCP4725 as  Adafruit_Python_MCP4725
 # Create a DAC instance.
 dac = Adafruit_Python_MCP4725.MCP4725()
 
