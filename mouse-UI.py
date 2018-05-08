@@ -434,6 +434,7 @@ class MainWindow(QMainWindow):
 			print(current_value)
 
 			newvalue = self.control.update(current_value=current_value)
+			print(newvalue)
 
 			cycle = 60
 
