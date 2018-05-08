@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
 				direction = 4095
 
 
-			if newvalue == current_value:
+			#@if newvalue == current_value:
 
 			cycle = 100
 
