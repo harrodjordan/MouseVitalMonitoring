@@ -429,6 +429,8 @@ class MainWindow(QMainWindow):
 
 	def tempControl(self):
 
+		self.p.start(cycle)
+
 		while True:
 
 			current_value = ConvertTemp(ConvertVolts(ReadChannel(2), 2), 2)
@@ -436,8 +438,6 @@ class MainWindow(QMainWindow):
 
 			newvalue = self.control.update(current_value=current_value)
 			print(newvalue)
-
-			cycle = 60
 
 			if newvalue < current_value:
 
@@ -449,13 +449,10 @@ class MainWindow(QMainWindow):
 				direction = 4095
 
 
-			#@if newvalue == current_value:
-			print(direction)
-
 			cycle = 100
 
-			dac.raw_value = direction
-			self.p.start(cycle)
+			dac.set_voltage(direction)
+			
 			time.sleep(2)
 
 
