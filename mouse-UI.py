@@ -429,7 +429,7 @@ class MainWindow(QMainWindow):
 
 	def tempControl(self):
 
-		self.p.start(cycle)
+		self.p.start(100)
 
 		while True:
 
@@ -448,8 +448,6 @@ class MainWindow(QMainWindow):
 
 				direction = 4095
 
-
-			cycle = 100
 
 			dac.set_voltage(direction)
 			
