@@ -439,7 +439,7 @@ class MainWindow(QMainWindow):
 
 			cycle = 60
 
-			if newvalue > current_value:
+			if newvalue < current_value:
 
 				direction = 0
 
