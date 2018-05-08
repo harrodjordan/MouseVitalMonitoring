@@ -458,9 +458,8 @@ class MainWindow(QMainWindow):
 		
 	def startAll(self):
 
-		
-		self.displayVitals()
 		self.lbl.plot()
+		self.displayVitals()
 		self.tempControl()
 
 
@@ -487,7 +486,7 @@ class MainWindow(QMainWindow):
 		else:
 			self.statusbar.hide()
 
-	def displayVitals():
+	def displayVitals(self):
 
 		while True:
 
