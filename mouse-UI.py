@@ -451,7 +451,7 @@ class MainWindow(QMainWindow):
 
 			if newvalue == current_value:
 
-				cycle = 10
+			cycle = 100
 
 			dac.raw_value = direction
 			self.p.start(cycle)
