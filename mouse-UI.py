@@ -62,7 +62,7 @@ def ConvertVolts(data, places):
 	return volts 
 
 def ConvertTemp(data, places):
-	reading = (4095 / DATA)  - 1;     
+	reading = (4095 / data)  - 1;     
 	temp = 10000 / reading; 
 	temp = round(temp, places)
 	return temp 
