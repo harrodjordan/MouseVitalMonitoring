@@ -435,7 +435,7 @@ class MainWindow(QMainWindow):
 
 			newvalue = control.update(current_value=current_value)
 
-			cycle = 1
+			cycle = 60
 
 			if newvalue > current_value:
 
@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
 
 			if newvalue == current_value:
 
-				cycle = 0
+				cycle = 10
 
 			dac.set_voltage(direction, True)
 			p.start(cycle)
@@ -459,9 +459,10 @@ class MainWindow(QMainWindow):
 		
 	def startAll(self):
 
-		self.lbl.plot()
-		self.displayVitals()
 		self.tempControl()
+		self.displayVitals()
+		self.lbl.plot()
+
 
 
 	def windowSizeInput(self):
