@@ -28,13 +28,22 @@ import pandas as pd
 from collections import deque
 import RPi.GPIO as GPIO
 
+#Import the MCP4725 module.
+import Adafruit_MCP4725 
+# Create a DAC instance.
+dac = Adafruit_MCP4725.MCP4725()
+
+print("Initializing ADC Direction Pin")
+
 SPI_PORT=0
 SPI_DEVICE=0
+
 GPIO.setmode(GPIO.BOARD)
+
 GPIO.setup(13, GPIO.OUT)
 print("Initializing PWM Pin")
-GPIO.setup(3, GPIO.OUT)
-print("Initializing Direction Pin")
+
+
 
 
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
@@ -53,7 +62,7 @@ def ConvertVolts(data, places):
 	return volts 
 
 def ConvertTemp(data, places):
-	temp = ((data * 330)/1023) - 50
+	temp = ((data * 500)/4095) - 50
 	temp = round(temp, places)
 	return temp 
 
@@ -422,6 +431,7 @@ class MainWindow(QMainWindow):
 		while True:
 
 			current_value = ConvertTemp(ConvertVolts(ReadChannel(2)))
+			print(current_value)
 
 			newvalue = control.update(current_value=current_value)
 
@@ -429,20 +439,21 @@ class MainWindow(QMainWindow):
 
 			if newvalue > current_value:
 
-				direction = 1
+				direction = 0
 
 
 			else: 
 
-				direction = 0
+				direction = 4096
 
 
 			if newvalue == current_value:
 
 				cycle = 0
 
-			#GPIO.output(3, direction)
+			dac.set_voltage(direction, True)
 			p.start(cycle)
+			time.sleep(2)
 
 
 		
