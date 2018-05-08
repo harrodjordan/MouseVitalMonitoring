@@ -62,8 +62,9 @@ def ConvertVolts(data, places):
 	return volts 
 
 def ConvertTemp(data, places):
-	temp = ((data * 500)/4095) - 50
-	temp = round(temp, places)
+	reading = (4095 / DATA)  - 1;     
+  	temp = 10000 / reading; 
+  	temp = round(temp, places)
 	return temp 
 
 def WaveletTransform(data):
