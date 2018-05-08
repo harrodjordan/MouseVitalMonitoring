@@ -126,10 +126,10 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		p = GPIO.PWM(13, 10)  # channel=5 frequency=50Hz
-		control = PID()
-		control.setPoint(set_point=37)
-		p.start(0)
+		self.p = GPIO.PWM(13, 10)  # channel=5 frequency=50Hz
+		self.control = PID()
+		self.control.setPoint(set_point=37)
+		self.p.start(0)
 
 		print("Initializing MainWindow")
 
@@ -433,7 +433,7 @@ class MainWindow(QMainWindow):
 			current_value = ConvertTemp(ConvertVolts(ReadChannel(2), 2), 2)
 			print(current_value)
 
-			newvalue = control.update(current_value=current_value)
+			newvalue = self.control.update(current_value=current_value)
 
 			cycle = 60
 
@@ -452,7 +452,7 @@ class MainWindow(QMainWindow):
 				cycle = 10
 
 			dac.set_voltage(direction, True)
-			p.start(cycle)
+			self.p.start(cycle)
 			time.sleep(2)
 
 
