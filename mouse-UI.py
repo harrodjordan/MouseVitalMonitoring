@@ -41,6 +41,8 @@ SPI_DEVICE=0
 GPIO.setmode(GPIO.BOARD)
 
 GPIO.setup(13, GPIO.OUT)
+GPIO.setup(29, GPIO.OUT)
+
 print("Initializing PWM Pin")
 
 
@@ -130,7 +132,6 @@ class MainWindow(QMainWindow):
 		self.p = GPIO.PWM(13, 10000)  # channel=5 frequency=1kHz
 		self.control = PID()
 		self.control.setPoint(set_point=37)
-		self.p.start(0)
 
 		print("Initializing MainWindow")
 
@@ -446,10 +447,10 @@ class MainWindow(QMainWindow):
 
 			else: 
 
-				direction = 4095
+				direction = 1
 
 
-			dac.set_voltage(direction)
+			GPIO.output(29, direction)
 			
 			time.sleep(2)
 
