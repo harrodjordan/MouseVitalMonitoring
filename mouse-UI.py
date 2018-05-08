@@ -445,7 +445,7 @@ class MainWindow(QMainWindow):
 
 			else: 
 
-				direction = 4096
+				direction = 4095
 
 
 			if newvalue == current_value:
