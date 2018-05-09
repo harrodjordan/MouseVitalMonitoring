@@ -84,18 +84,22 @@ class MainWindow(QMainWindow):
 		paletteBR = self.lcd_BR.palette()
 		paletteBR.setColor(paletteBR.WindowText, QtGui.QColor(85, 85, 240))
 		self.lcd_BR.setPalette(paletteBR)
+		self.lcd_BR.display(58)
+
 
 		
 		self.lcd_HR.setSegmentStyle(QLCDNumber.Flat)
 		paletteHR = self.lcd_HR.palette()
 		paletteHR.setColor(paletteHR.WindowText, QtGui.QColor(85, 255, 85))
 		self.lcd_HR.setPalette(paletteHR)
+		self.lcd_HR.display(287)
 
 		
 		self.lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
 		paletteTEMP = self.lcd_TEMP.palette()
 		paletteTEMP.setColor(paletteTEMP.WindowText, QtGui.QColor(255, 85, 85))
 		self.lcd_TEMP.setPalette(paletteTEMP)
+		self.lcd_TEMP.display(37)
 
 
 
@@ -316,7 +320,11 @@ class PlotCanvas(FigureCanvas):
  
 	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
 		plt.ion()
+		self.data_hr = genfromtxt('breathdata.csv', dtype=None, delimiter=',')
+		self.data_br = genfromtxt('heartdata.csv', dtype=None, delimiter=',')
+		self.data_temp = genfromtxt('faketemp.csv', dtype=None, delimiter=',')
 		self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
+
 		self.fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
 		self.title = title
@@ -448,7 +456,7 @@ class PlotCanvas(FigureCanvas):
 		self.real_temp = all_temp
 
 
-	def plot(self, data):
+	def plot1(self, data):
 		ax = self.figure.add_subplot(111)
 		ax.plot(data, self.color)
 		ax.set_title(self.title)
@@ -486,9 +494,9 @@ class PlotCanvas(FigureCanvas):
 		xtext_temp = self.Temp.set_xlabel('Time (s)') # returns a Text instance
 		ytext_temp = self.Temp.set_ylabel('Volts (V)')
 
-		line_hr, = self.HR.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-g')
-		line_br, = self.BR.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-c')
-		line_temp, = self.Temp.plot(self.data[1:window, 0] ,self.data[1:window, 1], '-r')
+		line_hr, = self.HR.plot(self.data[1:self.window, 0] ,self.data_hr[1:self.window], '-g')
+		line_br, = self.BR.plot(self.data[1:self.window, 0] ,self.data_br[1:self.window], '-c')
+		line_temp, = self.Temp.plot(self.data[1:self.window, 0] ,self.data_temp[1:self.window], '-r')
 
 		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
@@ -497,17 +505,17 @@ class PlotCanvas(FigureCanvas):
 
 	
 		for i in range(len(self.data)):
-			self.HR.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.HR.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line_hr.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
+			self.HR.set_ylim(min(self.data_hr[i:self.window+i]), max(self.data_hr[i:self.window+i]))
+			self.HR.set_xlim(min(self.data[i:self.window+i, 0]), max(self.data[i:self.window+i, 0]))
+			line_hr.set_data(self.data[i:self.window+i, 0], self.data_hr[i:self.window+i])
 
-			self.BR.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.BR.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line_br.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
+			self.BR.set_ylim(min(self.data_br[i:self.window+i]), max(self.data_br[i:self.window+i]))
+			self.BR.set_xlim(min(self.data[i:self.window+i, 0]), max(self.data[i:self.window+i, 0]))
+			line_br.set_data(self.data[i:self.window+i, 0], self.data_br[i:self.window+i])
 
-			self.Temp.set_ylim(min(self.data[i:window+i, 1]), max(self.data[i:window+i, 1]))
-			self.Temp.set_xlim(min(self.data[i:window+i, 0]), max(self.data[i:window+i, 0]))
-			line_temp.set_data(self.data[i:window+i, 0], self.data[i:window+i, 1])
+			self.Temp.set_ylim(min(self.data_temp[i:self.window+i]), max(self.data_temp[i:self.window+i]))
+			self.Temp.set_xlim(min(self.data[i:self.window+i, 0]), max(self.data[i:self.window+i, 0]))
+			line_temp.set_data(self.data[i:self.window+i, 0], self.data_temp[i:self.window+i])
 
 
 			self.fig.canvas.draw_idle()
