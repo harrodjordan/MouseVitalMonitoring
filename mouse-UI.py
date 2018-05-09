@@ -450,17 +450,17 @@ class MainWindow(QMainWindow):
 				direction = 1
 
 			GPIO.output(13, 1)
-			dac.set_voltage(1)
+			dac.set_voltage(0)
 			
 			time.sleep(2)
 
 
 		
 	def startAll(self):
-		
+
 		self.tempControl()
-		self.lbl.plot()
-		self.displayVitals()
+		#self.lbl.plot()
+		#self.displayVitals()
 		
 
 
