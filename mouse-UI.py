@@ -457,10 +457,11 @@ class MainWindow(QMainWindow):
 
 		
 	def startAll(self):
-
+		
+		self.tempControl()
 		self.lbl.plot()
 		self.displayVitals()
-		self.tempControl()
+		
 
 
 
