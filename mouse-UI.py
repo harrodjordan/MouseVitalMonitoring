@@ -450,7 +450,7 @@ class MainWindow(QMainWindow):
 				direction = 0
 
 			GPIO.output(13, 1)
-			GPIO.output(29, direction)
+			GPIO.output(29, 1)
 			
 			time.sleep(2)
 
