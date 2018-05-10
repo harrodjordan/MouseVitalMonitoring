@@ -40,7 +40,7 @@ SPI_DEVICE=0
 
 GPIO.setmode(GPIO.BOARD)
 
-GPIO.setup(13, GPIO.OUT)
+GPIO.setup(33, GPIO.OUT)
 GPIO.setup(29, GPIO.OUT)
 
 print("Initializing PWM Pin")
@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
 
 				direction = 0
 
-			GPIO.output(13, 1)
+			GPIO.output(33, 1)
 			GPIO.output(29, 1)
 			
 			time.sleep(2)
