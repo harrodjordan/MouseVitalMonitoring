@@ -450,7 +450,7 @@ class MainWindow(QMainWindow):
 				direction = 0
 
 			#GPIO.output(13, 1)
-			dac.set_voltage(direction)
+			GPIO.output(29, direction)
 			
 			time.sleep(2)
 
