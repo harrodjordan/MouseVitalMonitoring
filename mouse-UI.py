@@ -442,12 +442,12 @@ class MainWindow(QMainWindow):
 
 			if newvalue > current_value:
 
-				direction = 0
+				direction = 1
 
 
 			else: 
 
-				direction = 1
+				direction = 0
 
 			#GPIO.output(13, 1)
 			dac.set_voltage(direction)
