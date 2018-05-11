@@ -445,6 +445,8 @@ class MainWindow(QMainWindow):
 		while True:
 
 			current_value = ConvertTemp(ReadChannel(2), 2)
+
+			print(ReadChannel(2))
 			print(current_value)
 
 			newvalue = self.control.update(current_value=current_value)
