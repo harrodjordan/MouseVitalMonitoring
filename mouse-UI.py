@@ -64,8 +64,14 @@ def ConvertVolts(data, places):
 	return volts 
 
 def ConvertTemp(data, places):
-	reading = (4095 / data)  - 1;     
-	temp = 10000 / reading + 20; 
+
+	offset = 1/3300 
+	volts = (data / 4096);  
+	resistance = 10000*((volts/3.3)-1)   
+	inverse = (1/20) + offset*np.log(resistance/10000)
+
+
+	temp = 1/inverse 
 	temp = round(temp, places)
 	return temp 
 
