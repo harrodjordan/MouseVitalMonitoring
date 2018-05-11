@@ -129,9 +129,9 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		self.p = GPIO.PWM(33, 10000)  # channel=5 frequency=1kHz
+		#self.p = GPIO.PWM(33, 10000)  # channel=5 frequency=1kHz
 		self.control = PID()
-		self.control.setPoint(set_point=30)
+		self.control.setPoint(set_point=35)
 
 		print("Initializing MainWindow")
 
@@ -440,7 +440,7 @@ class MainWindow(QMainWindow):
 
 	def tempControl(self):
 
-		self.p.start(100)
+		#self.p.start(100)
 
 		while True:
 
@@ -461,9 +461,9 @@ class MainWindow(QMainWindow):
 
 			if newvalue == current_value:
 
-				self.p.start(0)
+				#self.p.start(0)
 
-
+			GPIO.output(33, 1)
 			GPIO.output(29, direction)
 			
 			time.sleep(2)
