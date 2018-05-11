@@ -70,7 +70,7 @@ def ConvertTemp(data, places):
 
 	print("Method Info")
 	print(volts)
-	resistance = 10000*((volts/3.3)-1)  
+	resistance = -10000*((volts/3.3)-1)  
 	print(resistance) 
 	inverse = (1/20) + offset*np.log(resistance/10000)
 
