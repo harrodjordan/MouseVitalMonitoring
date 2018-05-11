@@ -129,9 +129,9 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		#self.p = GPIO.PWM(13, 10000)  # channel=5 frequency=1kHz
+		self.p = GPIO.PWM(33, 10000)  # channel=5 frequency=1kHz
 		self.control = PID()
-		self.control.setPoint(set_point=37)
+		self.control.setPoint(set_point=30)
 
 		print("Initializing MainWindow")
 
@@ -293,14 +293,22 @@ class MainWindow(QMainWindow):
 		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
 		exitAct.triggered.connect(lambda: sys.exit())
 
-		exportAct = QAction(QIcon('document.png'), 'Export Vitals', self)
+		exportAct = QAction(QIcon('512x512.png'), 'Export Vitals', self)
 		exportAct.triggered.connect(lambda: self.writeRealCsv())
 
 		exportRawAct = QAction(QIcon('document.png'), 'Export Raw Data', self)
 		exportRawAct.triggered.connect(lambda: self.writeVoltageCsv())
 
-		startAct = QAction(QIcon('document.png'), 'Start', self)
-		startAct.triggered.connect(lambda: self.startAll())
+		startAct = QAction(QIcon('graphs icon.png'), 'Start Graphs', self)
+		startAct.triggered.connect(lambda: self.lbl.plot())
+
+		heatAct = QAction(QIcon('temperature icon.png'), 'Start Temperature', self)
+		heatAct.triggered.connect(lambda: self.tempControl())
+
+		vitalsAct = QAction(QIcon('vitals icon.png'), 'Start Vitals', self)
+		vitalsAct.triggered.connect(lambda: self.displayVitals())
+
+
 
 		
 		self.toolbar = self.addToolBar('Exit')
@@ -312,6 +320,7 @@ class MainWindow(QMainWindow):
 		self.toolbar.addAction(startAct)
 		self.toolbar.addAction(exportRawAct)
 		self.toolbar.addAction(exportAct)
+		self.toolbar.addAction(heatAct)
 
 		print("Creating toolbar menus and displaying window")
 		#Setting window size and showing
@@ -319,7 +328,8 @@ class MainWindow(QMainWindow):
 		self.show()
 
 	def Close(self):
-		p.stop()
+
+		self.p.stop()
 		GPIO.cleanup()
 		sys.exit()
 
@@ -430,7 +440,7 @@ class MainWindow(QMainWindow):
 
 	def tempControl(self):
 
-		#self.p.start(100)
+		self.p.start(100)
 
 		while True:
 
@@ -449,18 +459,22 @@ class MainWindow(QMainWindow):
 
 				direction = 0
 
-			GPIO.output(33, 1)
-			GPIO.output(29, 1)
+			if newvalue == current_value:
+
+				self.p.start(0)
+
+
+			GPIO.output(29, direction)
 			
 			time.sleep(2)
 
 
 		
-	def startAll(self):
+	def startVitals(self):
 
 		self.tempControl()
-		#self.lbl.plot()
-		#self.displayVitals()
+		self.lbl.plot()
+		self.displayVitals()
 		
 
 
