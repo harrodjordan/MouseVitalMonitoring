@@ -68,7 +68,7 @@ def ConvertTemp(data, places):
 	offset = 1/3300 
 	volts = (data / 4096);  
 	resistance = 10000*((volts/3.3)-1)   
-	inverse = (1/20) + offset*np.log(resistance/10000)
+	inverse = (1/20) + offset*log(resistance/10000)
 
 
 	temp = 1/inverse 
@@ -452,7 +452,7 @@ class MainWindow(QMainWindow):
 
 			current_value = ConvertTemp(ReadChannel(2), 2)
 
-			print(ReadChannel(2))
+			#print(ReadChannel(2))
 			print(current_value)
 
 			newvalue = self.control.update(current_value=current_value)
