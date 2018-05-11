@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
 
 		#self.p = GPIO.PWM(33, 10000)  # channel=5 frequency=1kHz
 		self.control = PID()
-		self.control.setPoint(set_point=35)
+		self.control.setPoint(set_point=37)
 
 		print("Initializing MainWindow")
 
@@ -444,7 +444,7 @@ class MainWindow(QMainWindow):
 
 		while True:
 
-			current_value = ConvertTemp(ConvertVolts(ReadChannel(2), 2), 2)
+			current_value = ConvertTemp(ReadChannel(2), 2)
 			print(current_value)
 
 			newvalue = self.control.update(current_value=current_value)
