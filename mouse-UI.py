@@ -459,7 +459,7 @@ class MainWindow(QMainWindow):
 
 				direction = 0
 
-			if newvalue == current_value:
+			#if newvalue == current_value:
 
 				#self.p.start(0)
 
