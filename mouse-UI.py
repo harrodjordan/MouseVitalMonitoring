@@ -68,10 +68,10 @@ def ConvertTemp(data, places):
 	offset = 1/3300 
 	volts = (data / 4096);  
 
-	print("Method Info")
-	print(volts)
+	#print("Method Info")
+	#print(volts)
 	resistance = -10000*((volts/3.3)-1)  
-	print(resistance) 
+	#print(resistance) 
 	inverse = (1/20) + offset*np.log(resistance/10000)
 
 
