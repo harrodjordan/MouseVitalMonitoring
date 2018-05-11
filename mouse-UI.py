@@ -67,12 +67,18 @@ def ConvertTemp(data, places):
 
 	offset = 1/3300 
 	volts = (data / 4096);  
-	resistance = 10000*((volts/3.3)-1)   
-	inverse = (1/20) + offset*log(resistance/10000)
+
+	print("Method Info")
+	print(volts)
+	resistance = 10000*((volts/3.3)-1)  
+	print(resistance) 
+	inverse = (1/20) + offset*np.log(resistance/10000)
+
 
 
 	temp = 1/inverse 
 	temp = round(temp, places)
+	print(temp)
 	return temp 
 
 def WaveletTransform(data):
