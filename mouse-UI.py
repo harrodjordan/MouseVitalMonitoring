@@ -70,7 +70,7 @@ def ConvertTemp(data, places):
 
 	#print("Method Info")
 	#print(volts)
-	resistance = -10000*((volts/3.3)-1)  
+	resistance = -10000*((volts/5.0)-1)  
 	#print(resistance) 
 	inverse = (1/20) + offset*np.log(resistance/10000)
 
@@ -78,7 +78,7 @@ def ConvertTemp(data, places):
 
 	temp = 1/inverse 
 	temp = round(temp, places)
-	print(temp)
+	#print(temp)
 	return temp 
 
 def WaveletTransform(data):
@@ -164,18 +164,21 @@ class MainWindow(QMainWindow):
 		paletteBR = self.lcd_BR.palette()
 		paletteBR.setColor(paletteBR.WindowText, QtGui.QColor(85, 85, 240))
 		self.lcd_BR.setPalette(paletteBR)
+		self.lcd_BR.display(58)
 
 		
 		self.lcd_HR.setSegmentStyle(QLCDNumber.Flat)
 		paletteHR = self.lcd_HR.palette()
 		paletteHR.setColor(paletteHR.WindowText, QtGui.QColor(85, 255, 85))
 		self.lcd_HR.setPalette(paletteHR)
+		self.lcd_HR.display(287)
 
 		
 		self.lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
 		paletteTEMP = self.lcd_TEMP.palette()
 		paletteTEMP.setColor(paletteTEMP.WindowText, QtGui.QColor(255, 85, 85))
 		self.lcd_TEMP.setPalette(paletteTEMP)
+		self.lcd_TEMP.display(17)
 
 
 
@@ -330,9 +333,9 @@ class MainWindow(QMainWindow):
 
 		self.toolbar.addAction(exitAct)
 		self.toolbar.addAction(startAct)
+		self.toolbar.addAction(heatAct)
 		self.toolbar.addAction(exportRawAct)
 		self.toolbar.addAction(exportAct)
-		self.toolbar.addAction(heatAct)
 
 		print("Creating toolbar menus and displaying window")
 		#Setting window size and showing
@@ -488,7 +491,7 @@ class MainWindow(QMainWindow):
 
 		self.tempControl()
 		self.lbl.plot()
-		self.displayVitals()
+		#self.displayVitals()
 		
 
 

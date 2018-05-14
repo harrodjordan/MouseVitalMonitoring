@@ -25,17 +25,21 @@ import time
 plt.ion()
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-#import PIL.Image
 import os, os.path
 import random
 import argparse
 import sys
 import csv
 import scipy.io
-import tkinter as tk
-from tkinter import filedialog
+import scipy.signal as signal
 from numpy import genfromtxt
 import pandas as pd
+import threading 
+import pywt
+
+def WaveletTransform(data):
+	cA, cD = pywt.dwt(data, 'db4')
+	return cA
 
 # use patient monitoring systems as a design model 
 
@@ -65,6 +69,7 @@ class MainWindow(QMainWindow):
 		self.lcd_BR = QLCDNumber(self)
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
+
 
 		self.initUI()
 
@@ -99,7 +104,7 @@ class MainWindow(QMainWindow):
 		paletteTEMP = self.lcd_TEMP.palette()
 		paletteTEMP.setColor(paletteTEMP.WindowText, QtGui.QColor(255, 85, 85))
 		self.lcd_TEMP.setPalette(paletteTEMP)
-		self.lcd_TEMP.display(37)
+		self.lcd_TEMP.display(17)
 
 
 
@@ -231,14 +236,22 @@ class MainWindow(QMainWindow):
 		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
 		exitAct.triggered.connect(lambda: sys.exit())
 
-		exportAct = QAction(QIcon('document.png'), 'Export Vitals', self)
+		exportAct = QAction(QIcon('512x512.png'), 'Export Vitals', self)
 		exportAct.triggered.connect(lambda: self.writeRealCsv())
 
 		exportRawAct = QAction(QIcon('document.png'), 'Export Raw Data', self)
 		exportRawAct.triggered.connect(lambda: self.writeVoltageCsv())
 
-		startAct = QAction(QIcon('document.png'), 'Start', self)
-		startAct.triggered.connect(lambda: self.startAll())
+		startAct = QAction(QIcon('graphs icon.png'), 'Start Graphs', self)
+		startAct.triggered.connect(lambda: self.lbl.plot())
+
+		heatAct = QAction(QIcon('temperature icon.png'), 'Start Temperature', self)
+		heatAct.triggered.connect(lambda: self.tempControl())
+
+		vitalsAct = QAction(QIcon('vitals icon.png'), 'Start Vitals', self)
+		vitalsAct.triggered.connect(lambda: self.startVitals())
+
+
 
 		
 		self.toolbar = self.addToolBar('Exit')
@@ -248,7 +261,8 @@ class MainWindow(QMainWindow):
 
 		self.toolbar.addAction(exitAct)
 		self.toolbar.addAction(startAct)
-		self.toolbar.addAction(exportRawAct)
+		self.toolbar.addAction(heatAct)
+		self.toolbar.addAction(vitalsAct)
 		self.toolbar.addAction(exportAct)
 
 
@@ -257,12 +271,68 @@ class MainWindow(QMainWindow):
   
 		self.show()
 
+	def analyzeHR(self, run=True):
 
-	def startAll(self):
+		data = genfromtxt('breathdata.csv', dtype=None, delimiter=',')
+		
+		HR_ADCchan = 1
 
-		self.lbl.plot(window = self.lbl.window, start = self.lbl.current_time)
+		run = True 
+
+		all_data = []
+		all_hr = []
+
+		count = 0
+
+		while run: 
+
+			Value = []
+			HR = []
+
+			HR_Wave = WaveletTransform(data[1+count:5000+count])
+			peakind = signal.find_peaks_cwt(HR_Wave, np.arange(1,1000))
+
+			dist = []
 
 
+			for i in range(len(peakind)-2):
+
+				dist.append(peakind[i+1] - peakind[i])
+
+			heart_rate = np.mean(1./np.sum(dist))
+			self.lcd_HR.display(heart_rate)
+			all_hr.append(heart_rate)
+
+			count = count + 10
+			print(heart_rate)
+
+
+
+
+
+	def startVitals(self):
+
+		t = []
+
+		vital_thread = threading.Thread(target = self.analyzeHR())
+		t.append(vital_thread)
+		vital_thread.start()
+
+		#temp_thread = threading.Thread(self.tempControl())
+		plot_thread = threading.Thread(target = self.lbl.plot())
+		
+
+		t.append(plot_thread)
+		
+
+		#temp_thread.start()
+		plot_thread.start()
+		#plot_thread.run()
+		
+		#vital_thread.run()
+
+
+		
 
 	def windowSizeInput(self):
 
@@ -322,8 +392,10 @@ class PlotCanvas(FigureCanvas):
 		plt.ion()
 		self.data_hr = genfromtxt('breathdata.csv', dtype=None, delimiter=',')
 		self.data_br = genfromtxt('heartdata.csv', dtype=None, delimiter=',')
-		self.data_temp = genfromtxt('faketemp.csv', dtype=None, delimiter=',')
-		self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
+		self.data_temp = genfromtxt('faketemp2.csv', dtype=None, delimiter=',')
+		self.data = genfromtxt('timedata.csv', dtype=None, delimiter=',')
+		print(self.data.shape)
+		print(self.data_hr.shape)
 
 		self.fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
@@ -356,6 +428,8 @@ class PlotCanvas(FigureCanvas):
 		#self.plot()
  
 	def analyzeHR(self, run=True):
+
+		self.data_hr = genfromtxt('breathdata.csv', dtype=None, delimiter=',')
 		
 		HR_ADCchan = 1
 
@@ -382,9 +456,11 @@ class PlotCanvas(FigureCanvas):
 				dist.append(peakind[i+1] - peakind[i])
 
 			heart_rate = np.mean(1./dist)
+			self.lcd_HR.display(heart_rate)
 			all_hr.append(heart_rate)
 
 			count = count + 10
+			print(count)
 
 
 		self.volt_hr = all_data
@@ -492,11 +568,11 @@ class PlotCanvas(FigureCanvas):
 		ytext_br = self.BR.set_ylabel('Volts (V)')
 
 		xtext_temp = self.Temp.set_xlabel('Time (s)') # returns a Text instance
-		ytext_temp = self.Temp.set_ylabel('Volts (V)')
+		ytext_temp = self.Temp.set_ylabel('Temperature (C)')
 
-		line_hr, = self.HR.plot(self.data[1:self.window, 0] ,self.data_hr[1:self.window], '-g')
-		line_br, = self.BR.plot(self.data[1:self.window, 0] ,self.data_br[1:self.window], '-c')
-		line_temp, = self.Temp.plot(self.data[1:self.window, 0] ,self.data_temp[1:self.window], '-r')
+		line_hr, = self.HR.plot(self.data[1:self.window] ,self.data_hr[1:self.window], '-g')
+		line_br, = self.BR.plot(self.data[1:self.window] ,self.data_br[1:self.window], '-c')
+		line_temp, = self.Temp.plot(self.data[1:self.window] ,self.data_temp[1:self.window], '-r')
 
 		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
@@ -506,16 +582,16 @@ class PlotCanvas(FigureCanvas):
 	
 		for i in range(len(self.data)):
 			self.HR.set_ylim(min(self.data_hr[i:self.window+i]), max(self.data_hr[i:self.window+i]))
-			self.HR.set_xlim(min(self.data[i:self.window+i, 0]), max(self.data[i:self.window+i, 0]))
-			line_hr.set_data(self.data[i:self.window+i, 0], self.data_hr[i:self.window+i])
+			self.HR.set_xlim(min(self.data[i:self.window+i]), max(self.data[i:self.window+i]))
+			line_hr.set_data(self.data[i:self.window+i], self.data_hr[i:self.window+i])
 
 			self.BR.set_ylim(min(self.data_br[i:self.window+i]), max(self.data_br[i:self.window+i]))
-			self.BR.set_xlim(min(self.data[i:self.window+i, 0]), max(self.data[i:self.window+i, 0]))
-			line_br.set_data(self.data[i:self.window+i, 0], self.data_br[i:self.window+i])
+			self.BR.set_xlim(min(self.data[i:self.window+i]), max(self.data[i:self.window+i]))
+			line_br.set_data(self.data[i:self.window+i], self.data_br[i:self.window+i])
 
 			self.Temp.set_ylim(min(self.data_temp[i:self.window+i]), max(self.data_temp[i:self.window+i]))
-			self.Temp.set_xlim(min(self.data[i:self.window+i, 0]), max(self.data[i:self.window+i, 0]))
-			line_temp.set_data(self.data[i:self.window+i, 0], self.data_temp[i:self.window+i])
+			self.Temp.set_xlim(min(self.data[i:self.window+i]), max(self.data[i:self.window+i]))
+			line_temp.set_data(self.data[i:self.window+i], self.data_temp[i:self.window+i])
 
 
 			self.fig.canvas.draw_idle()
