@@ -34,7 +34,6 @@ import scipy.io
 import scipy.signal as signal
 from numpy import genfromtxt
 import pandas as pd
-import threading 
 import pywt
 
 def WaveletTransform(data):
@@ -243,15 +242,13 @@ class MainWindow(QMainWindow):
 		exportRawAct.triggered.connect(lambda: self.writeVoltageCsv())
 
 		startAct = QAction(QIcon('graphs icon.png'), 'Start Graphs', self)
-		startAct.triggered.connect(lambda: self.lbl.plot())
+		startAct.triggered.connect(lambda: self.lbl.plot(self.lcd_HR, self.lcd_BR, self.lcd_TEMP))
 
 		heatAct = QAction(QIcon('temperature icon.png'), 'Start Temperature', self)
 		heatAct.triggered.connect(lambda: self.tempControl())
 
 		vitalsAct = QAction(QIcon('vitals icon.png'), 'Start Vitals', self)
 		vitalsAct.triggered.connect(lambda: self.startVitals())
-
-
 
 		
 		self.toolbar = self.addToolBar('Exit')
@@ -264,7 +261,6 @@ class MainWindow(QMainWindow):
 		self.toolbar.addAction(heatAct)
 		self.toolbar.addAction(vitalsAct)
 		self.toolbar.addAction(exportAct)
-
 
 
 		#Setting window size and showing
@@ -553,7 +549,7 @@ class PlotCanvas(FigureCanvas):
 
 
 
-	def plot(self, window=50, start=0):
+	def plot(self, window=50, start=0, lcd_HR, lcd_BR, lcd_TEMP):
 
 
 		self.window = window 

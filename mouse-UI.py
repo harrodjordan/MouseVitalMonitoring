@@ -70,9 +70,9 @@ def ConvertTemp(data, places):
 
 	#print("Method Info")
 	#print(volts)
-	resistance = -10000*((volts/5.0)-1)  
+	resistance = -10000*((5.0/volts)-1)  
 	#print(resistance) 
-	inverse = (1/20) + offset*np.log(resistance/10000)
+	inverse = (1/20) + offset*np.log((resistance/10000))
 
 
 
@@ -141,7 +141,7 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		#self.p = GPIO.PWM(33, 10000)  # channel=5 frequency=1kHz
+
 		self.control = PID()
 		self.control.setPoint(set_point=37)
 
@@ -348,118 +348,13 @@ class MainWindow(QMainWindow):
 		GPIO.cleanup()
 		sys.exit()
 
-	def analyzeHR(self, run=True):
-		
-		HR_ADCchan = 1
-
-		run = True 
-
-		all_data = []
-		all_hr = []
-
-		while run: 
-
-			Value = []
-			HR = []
-
-			for i in range(10):
-				hr_level = ReadChannel(HR_ADCchan)
-				hr_value = ConvertVolts(hr_level, 2)
-				hr = ConvertTemp(hr_level, 2)
-
-				Value.append(hr_value)
-				HR.append(hr)
-
-			all_data.append(HR)
-			HR_Wave = WaveletTransform(HR)
-			peakind = signal.find_peaks_cwt(HR_wave, np.arange(1,1000))
-
-			dist = []
-
-
-			for i in range(length(peakind - 2)):
-
-				dist.append(peakind[i+1] - peakind[i])
-
-			heart_rate = np.mean(1./dist) 
-			all_hr.append(heart_rate)
-			lcd_HR.display(heart_rate)
-
-
-		self.volt_hr = all_data
-		self.real_hr = all_hr
-
-
-
-	def analyzeBR(self, run=True):
-
-		BR_ADCchan = 2
-
-		all_data = []
-		all_br = []
-
-		run = True 
-
-		while run: 
-
-			Value = []
-			BR = []
-
-			for i in range(10):
-				br_level = ReadChannel(BR_ADCchan)
-				br_value = ConvertVolts(br_level, 2)
-				br = ConvertTemp(hr_level, 2)
-
-				Value.append(br_value)
-				BR.append(br)
-
-			all_data.append(BR)
-			BR_Wave = WaveletTransform(BR)
-			peakind = signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
-
-			dist = []
-
-			for i in range(length(peakind - 2)):
-
-				dist.append(peakind[i+1] - peakind[i])
-
-			breath_rate = np.mean(1./dist) 
-			all_br.append(breath_rate)
-			lcd_BR.display(breath_rate)
-
-		self.volt_br = all_data
-		self.real_br = all_br
-
-
-	def analyzeTEMP(self, run=True):
-
-		Temp_ADCchan = 3
-		all_data = []
-		all_temp = []
-
-		while run: 
-
-			temp_level = ReadChannel(Temp_ADCchan)
-			temp_value = ConvertVolts(temp_level, 2)
-			temp = ConvertTemp(temp_level, 2)
-
-			all_temp.append(temp)
-			all_data.append(temp_value)
-
-			lcd_BR.display(temp)
-
-			time.sleep(5)
-
-		self.volt_temp = all_data
-		self.real_temp = all_temp
 
 	def tempControl(self):
 
-		#self.p.start(100)
 
 		while True:
 
-			current_value = ConvertTemp(ReadChannel(2), 2)
+			current_value = ConvertTemp(ReadChannel(2), 1)
 
 			#print(ReadChannel(2))
 			print(current_value)
@@ -476,25 +371,18 @@ class MainWindow(QMainWindow):
 
 				direction = 0
 
-			#if newvalue == current_value:
-
-				#self.p.start(0)
 
 			GPIO.output(33, 1)
 			GPIO.output(29, direction)
 			
 			time.sleep(2)
 
-
 		
 	def startVitals(self):
 
 		self.tempControl()
 		self.lbl.plot()
-		#self.displayVitals()
 		
-
-
 
 	def windowSizeInput(self):
 
@@ -506,7 +394,6 @@ class MainWindow(QMainWindow):
 			newSize = num
 			self.lbl.plot(window=newSize, start = self.lbl.current_time)
 
-
 	def windowReset(self):
 
 		self.lbl.plot(window = self.lbl.window, start = self.lbl.current_time)
@@ -517,16 +404,6 @@ class MainWindow(QMainWindow):
 			self.statusbar.show()
 		else:
 			self.statusbar.hide()
-
-	def displayVitals(self):
-
-		while True:
-
-			#read channels to display vitals 
-
-			lcd_HR.display(np.mean(lbl.real_hr))
-			lcd_BR.display(np.mean(lbl.real_br))
-			lcd_TEMP.display(np.mean(lbl.real_temp))
 
 	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
 
@@ -580,6 +457,16 @@ class PlotCanvas(FigureCanvas):
 		self.temp_y = deque([0.0]*self.window)
 		self.x = deque([0.0]*self.window)
 
+		self.hr_data = []
+		self.br_data = []
+		self.temp_data = []
+
+		self.time_data = []
+
+		self.hr_volt = []
+		self.br_volt = []
+		self.temp_volt = []
+
 		self.start = 0
  
 		FigureCanvas.__init__(self, self.fig)
@@ -612,8 +499,47 @@ class PlotCanvas(FigureCanvas):
 		else:
 			self.addToBuf(buf, (time.time()-self.start))
 
+	
 
-	def plot(self, window=50, start=0):
+	def analyzeHR(self):
+
+		Value = []
+		HR = []
+
+		HR_Wave = WaveletTransform(self.hr_y)
+		peakind = signal.find_peaks_cwt(HR_wave, np.arange(1,1000))
+
+		dist = []
+
+
+		for i in range(length(peakind - 2)):
+
+			dist.append(peakind[i+1] - peakind[i])
+
+		heart_rate = np.mean(1./dist) 
+		self.hr_data.append(heart_rate)
+
+
+	def analyzeBR(self):
+
+
+		Value = []
+		BR = []
+
+		BR_Wave = WaveletTransform(self.br_y)
+		peakind = signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
+
+		dist = []
+
+		for i in range(length(peakind - 2)):
+
+			dist.append(peakind[i+1] - peakind[i])
+
+		breath_rate = np.mean(1./dist) 
+		self.br_data.append(breath_rate)
+
+
+	def plot(self, window=50, start=0, lcd_HR, lcd_BR, lcd_TEMP):
 
 
 		self.window = window 
@@ -639,7 +565,7 @@ class PlotCanvas(FigureCanvas):
 		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
 
-		plt.pause(0.05)
+		plt.pause(0.005)
 
 	
 		while True:
@@ -653,13 +579,21 @@ class PlotCanvas(FigureCanvas):
 			self.HR.set_xlim(min(self.x), max(self.x))
 			line_hr.set_data(self.x, self.hr_y)
 
+
+			lcd_HR.display(self.analyzeHR())
+
+
 			self.BR.set_ylim(min(self.br_y), max(self.br_y))
 			self.BR.set_xlim(min(self.x), max(self.x))
 			line_br.set_data(self.x, self.br_y)
 
+			lcd_BR.display(self.analyzeBR())
+
 			self.Temp.set_ylim(min(self.temp_y), max(self.temp_y))
 			self.Temp.set_xlim(min(self.x), max(self.x))
 			line_temp.set_data(self.x, self.temp_y)
+
+			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
 
 
 			self.fig.canvas.draw_idle()
@@ -670,15 +604,15 @@ class PlotCanvas(FigureCanvas):
 			plt.pause(0.005)
 			self.current_time = time.time()
 
+			print("Time to loop")
+
+			print(self.start - self.current_time)
+
 		plt.show()
 
 
-
-
 class PID:
-	"""
-	Discrete PID control
-	"""
+
 
 	def __init__(self, P=2.0, I=0.0, D=1.0, Derivator=0, Integrator=0, Integrator_max=500, Integrator_min=-500):
 
@@ -726,33 +660,6 @@ class PID:
 		self.set_point = set_point
 		self.Integrator=0
 		self.Derivator=0
-
-	def setIntegrator(self, Integrator):
-		self.Integrator = Integrator
-
-	def setDerivator(self, Derivator):
-		self.Derivator = Derivator
-
-	def setKp(self,P):
-		self.Kp=P
-
-	def setKi(self,I):
-		self.Ki=I
-
-	def setKd(self,D):
-		self.Kd=D
-
-	def getPoint(self):
-		return self.set_point
-
-	def getError(self):
-		return self.error
-
-	def getIntegrator(self):
-		return self.Integrator
-
-	def getDerivator(self):
-		return self.Derivator
 	
 		
 		
