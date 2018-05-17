@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPu
 import spidev 
 import time 
 import os
-import pywt 
+import pywt.pywt as pywt  
 import scipy
 from scipy import signal 
 import Adafruit_GPIO.SPI as SPI
@@ -507,7 +507,7 @@ class PlotCanvas(FigureCanvas):
 		HR = []
 
 		HR_Wave = WaveletTransform(self.hr_y)
-		peakind = signal.find_peaks_cwt(HR_wave, np.arange(1,1000))
+		peakind = signal.find_peaks(HR_wave, distance = 1000)
 
 		dist = []
 
@@ -527,7 +527,7 @@ class PlotCanvas(FigureCanvas):
 		BR = []
 
 		BR_Wave = WaveletTransform(self.br_y)
-		peakind = signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
+		peakind = signal.find_peaks(BR_wave, distance = 1000)
 
 		dist = []
 
