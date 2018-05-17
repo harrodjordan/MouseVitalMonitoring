@@ -570,8 +570,16 @@ class PlotCanvas(FigureCanvas):
 
 		#plt.pause(0.005)
 
+		count = 0;
+
 	
 		while True:
+
+			if count % 10 == 0: 
+
+				lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
+				lcd_BR.display(self.analyzeBR())
+				lcd_HR.display(self.analyzeHR())
 
 			diff = time.time()
 
@@ -584,20 +592,18 @@ class PlotCanvas(FigureCanvas):
 			self.HR.set_xlim(min(self.x), max(self.x))
 			line_hr.set_data(self.x, self.hr_y)
 
-			lcd_HR.display(self.analyzeHR())
+			
 
 
 			self.BR.set_ylim(min(self.br_y), max(self.br_y))
 			self.BR.set_xlim(min(self.x), max(self.x))
 			line_br.set_data(self.x, self.br_y)
 
-			lcd_BR.display(self.analyzeBR())
+
 
 			self.Temp.set_ylim(min(self.temp_y), max(self.temp_y))
 			self.Temp.set_xlim(min(self.x), max(self.x))
 			line_temp.set_data(self.x, self.temp_y)
-
-			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
 
 
 			self.fig.canvas.draw_idle()
