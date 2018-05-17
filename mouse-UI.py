@@ -514,7 +514,7 @@ class PlotCanvas(FigureCanvas):
 		dist = []
 
 
-		for i in range(length(peakind - 2)):
+		for i in range(len(peakind) - 2):
 
 			dist.append(peakind[i+1] - peakind[i])
 
@@ -532,8 +532,7 @@ class PlotCanvas(FigureCanvas):
 		peakind = signal.find_peaks(BR_wave, distance = 1000)
 
 		dist = []
-
-		for i in range(length(peakind - 2)):
+		for i in range(len(peakind) - 2):
 
 			dist.append(peakind[i+1] - peakind[i])
 
