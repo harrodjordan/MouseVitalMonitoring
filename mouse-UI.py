@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPu
 import spidev 
 import time 
 import os
-import pywt.pywt as pywt  
+import pywt 
 import scipy
 from scipy import signal 
 import Adafruit_GPIO.SPI as SPI
@@ -82,7 +82,7 @@ def ConvertTemp(data, places):
 	return temp 
 
 def WaveletTransform(data):
-	cA, cD = pywt.dwt(data, 'db4')
+	cA, cD = signal.cwt(data, signal.daub(4))
 	return cA
 
 #channel 0 = HR
