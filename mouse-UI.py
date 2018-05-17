@@ -530,7 +530,7 @@ class PlotCanvas(FigureCanvas):
 		BR = []
 
 		#BR_wave = WaveletTransform(self.br_y)
-		peakind = signal.find_peaks(BR_wave, distance = 1000)
+		peakind = signal.find_peaks(self.br_y, distance = 1000)
 
 		dist = []
 		for i in range(len(peakind) - 2):
@@ -592,7 +592,7 @@ class PlotCanvas(FigureCanvas):
 			self.BR.set_xlim(min(self.x), max(self.x))
 			line_br.set_data(self.x, self.br_y)
 
-			#lcd_BR.display(self.analyzeBR())
+			lcd_BR.display(self.analyzeBR())
 
 			self.Temp.set_ylim(min(self.temp_y), max(self.temp_y))
 			self.Temp.set_xlim(min(self.x), max(self.x))
