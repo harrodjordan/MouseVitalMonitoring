@@ -568,8 +568,6 @@ class PlotCanvas(FigureCanvas):
 		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
 
-		#plt.pause(0.005)
-
 		count = 0;
 
 	
@@ -577,15 +575,9 @@ class PlotCanvas(FigureCanvas):
 
 			diff = time.time()
 
-			if count % 100 == 0:
-
-				print("Updating display numbers") 
-
-				lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
-				lcd_BR.display(self.analyzeBR())
-				lcd_HR.display(self.analyzeHR())
-
-			
+			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
+			lcd_BR.display(self.analyzeBR())
+			lcd_HR.display(self.analyzeHR())
 
 			self.add(self.x, 0, time_check = True)
 			self.add(self.hr_y, 0)
@@ -613,9 +605,8 @@ class PlotCanvas(FigureCanvas):
 			self.fig.canvas.draw_idle()
 			
 
-			self.fig.canvas.flush_events()
+			#self.fig.canvas.flush_events()
 			plt.show()
-			#plt.pause(0.005)
 			self.current_time = time.time()
 
 			print("Time to loop")
