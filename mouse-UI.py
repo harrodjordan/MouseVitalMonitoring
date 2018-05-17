@@ -315,7 +315,7 @@ class MainWindow(QMainWindow):
 		exportRawAct.triggered.connect(lambda: self.writeVoltageCsv())
 
 		startAct = QAction(QIcon('graphs icon.png'), 'Start Graphs', self)
-		startAct.triggered.connect(lambda: self.lbl.plot())
+		startAct.triggered.connect(lambda: self.lbl.plot(lcd_HR=self.lcd_HR, lcd_BR=self.lcd_BR, lcd_TEMP=self.lcd_TEMP))
 
 		heatAct = QAction(QIcon('temperature icon.png'), 'Start Temperature', self)
 		heatAct.triggered.connect(lambda: self.tempControl())
