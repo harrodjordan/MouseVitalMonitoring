@@ -518,7 +518,7 @@ class PlotCanvas(FigureCanvas):
 
 			dist.append(peakind[i+1] - peakind[i])
 
-		heart_rate = np.mean(1./dist) 
+		heart_rate = np.mean(1./np.array(dist)) 
 		self.hr_data.append(heart_rate)
 
 
@@ -536,7 +536,7 @@ class PlotCanvas(FigureCanvas):
 
 			dist.append(peakind[i+1] - peakind[i])
 
-		breath_rate = np.mean(1./dist) 
+		breath_rate = np.mean(1./np.array(dist))
 		self.br_data.append(breath_rate)
 
 
