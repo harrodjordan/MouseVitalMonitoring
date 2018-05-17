@@ -507,8 +507,8 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		HR = []
 
-		HR_wave = WaveletTransform(self.hr_y)
-		print(HR_wave.shape)
+		#HR_wave = WaveletTransform(self.hr_y)
+		#print(HR_wave.shape)
 		peakind = signal.find_peaks(HR_wave, distance = 1000)
 
 		dist = []
@@ -520,6 +520,7 @@ class PlotCanvas(FigureCanvas):
 
 		heart_rate = np.mean(1./np.array(dist)) 
 		self.hr_data.append(heart_rate)
+		return heart_rate
 
 
 	def analyzeBR(self):
@@ -528,7 +529,7 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		BR = []
 
-		BR_wave = WaveletTransform(self.br_y)
+		#BR_wave = WaveletTransform(self.br_y)
 		peakind = signal.find_peaks(BR_wave, distance = 1000)
 
 		dist = []
@@ -538,6 +539,7 @@ class PlotCanvas(FigureCanvas):
 
 		breath_rate = np.mean(1./np.array(dist))
 		self.br_data.append(breath_rate)
+		return breath_rate
 
 
 	def plot(self, lcd_HR, lcd_BR, lcd_TEMP, window=50, start=0):
@@ -571,6 +573,8 @@ class PlotCanvas(FigureCanvas):
 	
 		while True:
 
+			diff = time.time()
+
 			self.add(self.x, 0, time_check = True)
 			self.add(self.hr_y, 0)
 			self.add(self.br_y, 1)
@@ -581,7 +585,7 @@ class PlotCanvas(FigureCanvas):
 			line_hr.set_data(self.x, self.hr_y)
 
 
-			#lcd_HR.display(self.analyzeHR())
+			lcd_HR.display(self.analyzeHR())
 
 
 			self.BR.set_ylim(min(self.br_y), max(self.br_y))
@@ -607,7 +611,7 @@ class PlotCanvas(FigureCanvas):
 
 			print("Time to loop")
 
-			print(self.start - self.current_time)
+			print(diff - self.current_time)
 
 		plt.show()
 
