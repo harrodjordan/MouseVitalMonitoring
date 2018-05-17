@@ -82,7 +82,7 @@ def ConvertTemp(data, places):
 	return temp 
 
 def WaveletTransform(data):
-	widths = np.arange(1, 1000)
+	widths = np.arange(1)
 	cA = signal.cwt(data, signal.ricker, widths)
 	return cA
 
