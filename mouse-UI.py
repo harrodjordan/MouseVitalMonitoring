@@ -575,13 +575,17 @@ class PlotCanvas(FigureCanvas):
 	
 		while True:
 
-			if count % 10 == 0: 
+			diff = time.time()
+
+			if count % 100 == 0:
+
+				print("Updating display numbers") 
 
 				lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
 				lcd_BR.display(self.analyzeBR())
 				lcd_HR.display(self.analyzeHR())
 
-			diff = time.time()
+			
 
 			self.add(self.x, 0, time_check = True)
 			self.add(self.hr_y, 0)
