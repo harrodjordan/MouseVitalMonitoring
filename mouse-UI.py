@@ -509,7 +509,7 @@ class PlotCanvas(FigureCanvas):
 
 		#HR_wave = WaveletTransform(self.hr_y)
 		#print(HR_wave.shape)
-		peakind = signal.find_peaks(self.hr_y, distance = 1000)
+		peakind = signal.find_peaks(self.hr_y, distance = 2)
 
 		dist = []
 
@@ -530,7 +530,7 @@ class PlotCanvas(FigureCanvas):
 		BR = []
 
 		#BR_wave = WaveletTransform(self.br_y)
-		peakind = signal.find_peaks(self.br_y, distance = 1000)
+		peakind = signal.find_peaks(self.br_y, distance = 2)
 
 		dist = []
 		for i in range(len(peakind) - 2):
@@ -559,7 +559,7 @@ class PlotCanvas(FigureCanvas):
 		xtext_temp = self.Temp.set_xlabel('Time (s)') # returns a Text instance
 		ytext_temp = self.Temp.set_ylabel('Volts (V)')
 
-		self.start = time.time()
+		#self.start = time.time()
 
 		line_hr, = self.HR.plot(self.x ,self.hr_y, '-g')
 		line_br, = self.BR.plot(self.x ,self.br_y,  '-c')
@@ -568,7 +568,7 @@ class PlotCanvas(FigureCanvas):
 		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
 
-		plt.pause(0.005)
+		#plt.pause(0.005)
 
 	
 		while True:
@@ -583,7 +583,6 @@ class PlotCanvas(FigureCanvas):
 			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
 			self.HR.set_xlim(min(self.x), max(self.x))
 			line_hr.set_data(self.x, self.hr_y)
-
 
 			lcd_HR.display(self.analyzeHR())
 
@@ -606,7 +605,7 @@ class PlotCanvas(FigureCanvas):
 
 			self.fig.canvas.flush_events()
 			plt.show()
-			plt.pause(0.005)
+			#plt.pause(0.005)
 			self.current_time = time.time()
 
 			print("Time to loop")
