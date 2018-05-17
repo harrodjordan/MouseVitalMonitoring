@@ -605,8 +605,8 @@ class PlotCanvas(FigureCanvas):
 			self.fig.canvas.draw_idle()
 			
 
-			#self.fig.canvas.flush_events()
-			plt.pause(0.00005)
+			self.fig.canvas.flush_events()
+			#plt.pause(0.00005)
 			plt.show()
 			self.current_time = time.time()
 
