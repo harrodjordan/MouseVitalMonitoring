@@ -507,7 +507,7 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		HR = []
 
-		HR_Wave = WaveletTransform(self.hr_y)
+		HR_wave = WaveletTransform(self.hr_y)
 		peakind = signal.find_peaks(HR_wave, distance = 1000)
 
 		dist = []
@@ -527,7 +527,7 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		BR = []
 
-		BR_Wave = WaveletTransform(self.br_y)
+		BR_wave = WaveletTransform(self.br_y)
 		peakind = signal.find_peaks(BR_wave, distance = 1000)
 
 		dist = []
