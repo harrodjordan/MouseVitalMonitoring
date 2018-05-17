@@ -82,9 +82,9 @@ def ConvertTemp(data, places):
 	return temp 
 
 def WaveletTransform(data):
-	widths = np.arange(1)
+	widths = np.arange(1,1000)
 	cA = signal.cwt(data, signal.ricker, widths)
-	return cA
+	return np.mean(cA, axis = 0)
 
 #channel 0 = HR
 #channel 1 = BR
@@ -447,7 +447,7 @@ class PlotCanvas(FigureCanvas):
 		self.color = color 
 		self.title = title
 		self.current_time = 0
-		self.window = 50
+		self.window = 10000
 
 		self.HR = self.fig.add_subplot(311)
 		self.BR = self.fig.add_subplot(312)
