@@ -598,7 +598,7 @@ class PlotCanvas(FigureCanvas):
 			self.Temp.set_xlim(min(self.x), max(self.x))
 			line_temp.set_data(self.x, self.temp_y)
 
-			#lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
+			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
 
 
 			self.fig.canvas.draw_idle()
