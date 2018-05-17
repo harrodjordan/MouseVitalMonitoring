@@ -508,6 +508,7 @@ class PlotCanvas(FigureCanvas):
 		HR = []
 
 		HR_wave = WaveletTransform(self.hr_y)
+		print(HR_wave.shape)
 		peakind = signal.find_peaks(HR_wave, distance = 1000)
 
 		dist = []
