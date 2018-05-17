@@ -618,6 +618,8 @@ class PlotCanvas(FigureCanvas):
 
 			print(diff - self.current_time)
 
+			count = count + 1
+
 		plt.show()
 
 
