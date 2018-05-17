@@ -82,8 +82,8 @@ def ConvertTemp(data, places):
 	return temp 
 
 def WaveletTransform(data):
-	widths = np.arange(1000)
-	cA = signal.cwt(data, signal.daub(4), widths)
+	widths = np.arange(1, 1000)
+	cA = signal.cwt(data, signal.daub(4), widths.tolist())
 	return cA
 
 #channel 0 = HR
