@@ -539,7 +539,7 @@ class PlotCanvas(FigureCanvas):
 		self.br_data.append(breath_rate)
 
 
-	def plot(self, window=50, start=0, lcd_HR, lcd_BR, lcd_TEMP):
+	def plot(self, lcd_HR, lcd_BR, lcd_TEMP, window=50, start=0):
 
 
 		self.window = window 
