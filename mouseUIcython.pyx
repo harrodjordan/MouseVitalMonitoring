@@ -416,7 +416,7 @@ class MainWindow(QMainWindow):
 		volt_br = self.lbl.volt_br
 		volt_temp = self.lbl.volt_temp
 
-		fileName_volt = cwd + fileName + "Voltage_Data.csv"
+		fileName_volt = cwd + fileName + 'Voltage_Data.csv'
 		
 
 		data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
@@ -428,7 +428,7 @@ class MainWindow(QMainWindow):
 		real_br = self.lbl.real_br
 		real_temp = self.lbl.real_temp
 
-		fileName_real = cwd + fileName + "Vital_Data.csv"
+		fileName_real = cwd + fileName + 'Vital_Data.csv'
 
 		data = pd.DataFrame({'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
 		data.to_csv(fileName_real, index=False)
