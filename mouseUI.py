@@ -356,8 +356,6 @@ class MainWindow(QMainWindow):
 	def Close(self):
 
 
-
-		
 		sub.call(["git", "add", "."])
 		sub.call(["git", "commit", "-m"])
 		sub.call(["git", "push"])
@@ -487,6 +485,10 @@ class MainWindow(QMainWindow):
 		len_hr = len(real_hr)
 		len_br = len(real_br)
 		len_temp = len(real_temp)
+
+		lengths = np.array([len_x, len_hr, len_br, len_temp])
+
+		print(lengths)
 
 
 		fileName_real = workingdir  + 'Vital_Data' + today +  '.csv'
