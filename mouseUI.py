@@ -596,9 +596,10 @@ class PlotCanvas(FigureCanvas):
 		dist = []
 		for i in range(len(peakind) - 2):
 
-			dist.append(peakind[i+1] - peakind[i])
+			dist = np.append(dist, (peakind[i+1] - peakind[i]))
 
 		breath_rate = np.mean(np.array(dist))
+		print(breath_rate)
 		breath_rate = 1/breath_rate
 		self.br_data.append(breath_rate)
 		print(breath_rate)
