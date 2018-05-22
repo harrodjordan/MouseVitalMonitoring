@@ -694,12 +694,12 @@ class PlotCanvas(FigureCanvas):
 
 			if newvalue > current_value:
 
-				direction = 1
+				direction = 0
 
 
 			else: 
 
-				direction = 0
+				direction = 1
 
 
 			#GPIO.output(33, 1)
