@@ -421,7 +421,6 @@ class MainWindow(QMainWindow):
 		else:
 			self.statusbar.hide()
 
-	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
 
 	def writeVoltageCsv(self):
 
@@ -487,7 +486,7 @@ class MainWindow(QMainWindow):
 
 		fileName_real = workingdir  + 'Vital_Data' + today +  '.csv'
 
-		data = pd.DataFrame({'Time (s)':time, 'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
+		data = pd.DataFrame({'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
 		data.to_csv(fileName_real, index=False)
 
 
