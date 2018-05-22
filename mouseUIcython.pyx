@@ -525,8 +525,6 @@ class PlotCanvas(FigureCanvas):
 		else:
 			self.addToBuf(buf, (time.time()-self.start))
 
-			print((time.time()-self.start))
-
 	
 
 	def analyzeHR(self):
@@ -568,6 +566,7 @@ class PlotCanvas(FigureCanvas):
 
 	def plot(self, lcd_HR, lcd_BR, lcd_TEMP, control, window=50, start=0):
 
+		self.start = time.time()
 
 		self.window = window 
 		self.HR.set_title('Heart Rate')
