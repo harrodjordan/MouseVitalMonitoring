@@ -469,7 +469,7 @@ class MainWindow(QMainWindow):
 		len_br = len(real_br)
 		len_temp = len(real_temp)
 
-		lengths = np.array([len_x, len_hr, len_br, len_temp])
+		lengths = np.array([len_hr, len_br, len_temp])
 
 		print(lengths)
 		print(real_hr)
@@ -486,7 +486,7 @@ class MainWindow(QMainWindow):
 		len_br = len(real_br)
 		len_temp = len(real_temp)
 
-		lengths = np.array([len_x, len_hr, len_br, len_temp])
+		lengths = np.array([len_hr, len_br, len_temp])
 
 		print(lengths)
 
