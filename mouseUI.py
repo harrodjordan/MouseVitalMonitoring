@@ -581,6 +581,7 @@ class PlotCanvas(FigureCanvas):
 
 		heart_rate = np.mean(1./np.array(dist)) 
 		self.hr_data.append(heart_rate)
+		print(heart_rate)
 		return heart_rate
 
 
@@ -599,6 +600,7 @@ class PlotCanvas(FigureCanvas):
 
 		breath_rate = np.mean(1./np.array(dist))
 		self.br_data.append(breath_rate)
+		print(breath_rate)
 		return breath_rate
 
 
