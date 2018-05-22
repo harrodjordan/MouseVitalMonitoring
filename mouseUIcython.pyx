@@ -330,8 +330,8 @@ class MainWindow(QMainWindow):
 		heatAct = QAction(QIcon('temperature icon.png'), 'Start Temperature', self)
 		heatAct.triggered.connect(lambda: self.tempControl())
 
-		vitalsAct = QAction(QIcon('vitals icon.png'), 'Start Vitals', self)
-		vitalsAct.triggered.connect(lambda: self.displayVitals())
+		vitalsAct = QAction(QIcon('vitals icon.png'), 'Start Recording', self)
+		vitalsAct.triggered.connect(lambda: self.startVitals())
 
 
 
@@ -344,6 +344,7 @@ class MainWindow(QMainWindow):
 		self.toolbar.addAction(exitAct)
 		self.toolbar.addAction(startAct)
 		self.toolbar.addAction(heatAct)
+		self.toolbar.addAction(vitalsAct)
 		self.toolbar.addAction(exportRawAct)
 		self.toolbar.addAction(exportAct)
 
@@ -618,7 +619,9 @@ class PlotCanvas(FigureCanvas):
 				self.add(self.x, 0, time_check = True)
 				self.add(self.hr_y, 0)
 				self.add(self.br_y, 1)
-				self.add(self.temp_y, 2)
+				
+
+			self.add(self.temp_y, 2)	
 
 			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
 			self.HR.set_xlim(min(self.x), max(self.x))
