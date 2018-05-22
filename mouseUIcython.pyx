@@ -604,12 +604,12 @@ class PlotCanvas(FigureCanvas):
 			lcd_BR.display(self.analyzeBR())
 
 
-			if (self.analyzeBR() > 80 | self.analyzeBR() < 50):
+			if (self.analyzeBR() > 80 || self.analyzeBR() < 50):
 
 				lcd_BR.setSegmentStyle(QLCDNumber.Filled)
 
 
-			if (ConvertTemp(ReadChannel(2), 2) > 40 | ConvertTemp(ReadChannel(2), 2) < 35):
+			if (ConvertTemp(ReadChannel(2), 2) > 40 || ConvertTemp(ReadChannel(2), 2) < 35):
 
 				lcd_TEMP.setSegmentStyle(QLCDNumber.Filled)
 
