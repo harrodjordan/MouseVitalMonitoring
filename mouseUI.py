@@ -147,7 +147,7 @@ class MainWindow(QMainWindow):
 
 
 		self.control = PID()
-		self.control.setPoint(set_point=37)
+		self.control.setPoint(set_point=27)
 
 		print("Initializing MainWindow")
 
