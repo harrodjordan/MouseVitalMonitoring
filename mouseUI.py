@@ -592,6 +592,7 @@ class PlotCanvas(FigureCanvas):
 		BR = []
 
 		peakind = signal.find_peaks(self.br_y, distance = 2)
+		print(peakind)
 
 		dist = []
 		for i in range(len(peakind) - 2):
