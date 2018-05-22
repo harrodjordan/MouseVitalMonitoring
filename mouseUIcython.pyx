@@ -325,7 +325,7 @@ class MainWindow(QMainWindow):
 		exportRawAct.triggered.connect(lambda: self.writeVoltageCsv())
 
 		startAct = QAction(QIcon('graphs icon.png'), 'Start Graphs', self)
-		startAct.triggered.connect(lambda: self.lbl.plot(lcd_HR=self.lcd_HR, lcd_BR=self.lcd_BR, lcd_TEMP=self.lcd_TEMP))
+		startAct.triggered.connect(lambda: self.lbl.plot(lcd_HR=self.lcd_HR, lcd_BR=self.lcd_BR, lcd_TEMP=self.lcd_TEMP, control=self.control))
 
 		heatAct = QAction(QIcon('temperature icon.png'), 'Start Temperature', self)
 		heatAct.triggered.connect(lambda: self.tempControl())
@@ -397,7 +397,7 @@ class MainWindow(QMainWindow):
 	def startVitals(self):
 
 		#self.tempControl()
-		self.lbl.plot()
+		self.lbl.plot(lcd_HR=self.lcd_HR, lcd_BR=self.lcd_BR, lcd_TEMP=self.lcd_TEMP, control=self.control)
 		
 
 	def windowSizeInput(self):
@@ -564,7 +564,7 @@ class PlotCanvas(FigureCanvas):
 		return breath_rate
 
 
-	def plot(self, lcd_HR, lcd_BR, lcd_TEMP, window=50, start=0):
+	def plot(self, lcd_HR, lcd_BR, lcd_TEMP, control, window=50, start=0):
 
 
 		self.window = window 
@@ -650,7 +650,7 @@ class PlotCanvas(FigureCanvas):
 			#print(ReadChannel(2))
 			print(current_value)
 
-			newvalue = self.control.update(current_value=current_value)
+			newvalue = control.update(current_value=current_value)
 			print(newvalue)
 
 			if newvalue > current_value:
@@ -666,7 +666,7 @@ class PlotCanvas(FigureCanvas):
 			GPIO.output(33, 1)
 			GPIO.output(29, direction)
 			
-			
+
 			self.current_time = time.time()
 
 			print("Time to loop")
