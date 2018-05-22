@@ -426,7 +426,7 @@ class MainWindow(QMainWindow):
 
 		today = dt.now()
 
-		today = today.strftime("%Y-%m-%d %H:%M:%S")
+		today = today.strftime("%Y-%m-%d-%H%M%S")
 
 		workingdir = os.getcwd() + '/Voltage Data/'
 
@@ -460,7 +460,7 @@ class MainWindow(QMainWindow):
 
 		today = dt.now()
 
-		today = today.strftime("%Y-%m-%d %H:%M:%S")
+		today = today.strftime("%Y-%m-%d-%H%M%S")
 
 		workingdir = os.getcwd() + '/Vital Data/'
 
@@ -482,6 +482,11 @@ class MainWindow(QMainWindow):
 		real_hr = real_hr[0:(x-1)]
 		real_br = real_br[0:(x-1)]
 		real_temp = real_temp[0:(x-1)]
+
+		len_x = len(time)
+		len_hr = len(real_hr)
+		len_br = len(real_br)
+		len_temp = len(real_temp)
 
 
 		fileName_real = workingdir  + 'Vital_Data' + today +  '.csv'
@@ -679,11 +684,12 @@ class PlotCanvas(FigureCanvas):
 
 			current_value = ConvertTemp(ReadChannel(2), 1)
 
-			#print(ReadChannel(2))
-			print(current_value)
+
+			#print(current_value)
 
 			newvalue = control.update(current_value=current_value)
-			print(newvalue)
+			
+			#print(newvalue)
 
 			if newvalue > current_value:
 
