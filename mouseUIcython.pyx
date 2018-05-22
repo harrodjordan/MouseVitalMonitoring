@@ -151,11 +151,11 @@ class MainWindow(QMainWindow):
 
 		print("Initializing MainWindow")
 
-		if not os.path.isdir('/usr/pi/Documents/MouseVitalMonitoring/Voltage Data'):
-			os.mkdir('/usr/pi/Documents/MouseVitalMonitoring/Voltage Data')
+		if not os.path.isdir('/home/pi/Documents/MouseVitalMonitoring/Voltage Data'):
+			os.mkdir('/home/pi/Documents/MouseVitalMonitoring/Voltage Data')
 
-		if not os.path.isdir('/usr/pi/Documents/MouseVitalMonitoring/Vital Data'):
-			os.mkdir('/usr/pi/Documents/MouseVitalMonitoring/Vital Data')
+		if not os.path.isdir('/home/pi/Documents/MouseVitalMonitoring/Vital Data'):
+			os.mkdir('/home/pi/Documents/MouseVitalMonitoring/Vital Data')
 
 
 		self.initUI()
