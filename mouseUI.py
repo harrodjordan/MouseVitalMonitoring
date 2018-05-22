@@ -428,7 +428,6 @@ class MainWindow(QMainWindow):
 
 		workingdir = os.getcwd() + '/Voltage Data/'
 
-		time = np.array(self.lbl.x)
 		volt_hr = np.array(self.lbl.hr_volt)
 		volt_br = np.array(self.lbl.br_volt)
 		volt_temp = np.array(self.lbl.temp_volt)
@@ -438,7 +437,7 @@ class MainWindow(QMainWindow):
 		len_br = len(volt_br)
 		len_temp = len(volt_temp)
 
-		lengths = np.array([len_x, len_hr, len_br, len_temp])
+		lengths = np.array([len_hr, len_br, len_temp])
 
 		x = min(int(s) for s in lengths)
 
@@ -462,26 +461,27 @@ class MainWindow(QMainWindow):
 
 		workingdir = os.getcwd() + '/Vital Data/'
 
-		time = np.array(self.lbl.x)
 		real_hr = np.array(self.lbl.hr_data)
 		real_br = np.array(self.lbl.br_data)
 		real_temp = np.array(self.lbl.temp_data)
 
-		len_x = len(time)
 		len_hr = len(real_hr)
 		len_br = len(real_br)
 		len_temp = len(real_temp)
 
 		lengths = np.array([len_x, len_hr, len_br, len_temp])
 
+		print(lengths)
+		print(real_hr)
+		print(real_br)
+		print(real_temp)
+
 		x = min(int(s) for s in lengths)
 
-		time = time[0:(x-1)]
 		real_hr = real_hr[0:(x-1)]
 		real_br = real_br[0:(x-1)]
 		real_temp = real_temp[0:(x-1)]
 
-		len_x = len(time)
 		len_hr = len(real_hr)
 		len_br = len(real_br)
 		len_temp = len(real_temp)
