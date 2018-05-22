@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
 		len_br = len(volt_br)
 		len_temp = len(volt_temp)
 
-		lengths = [len_hr; len_br; len_temp]
+		lengths = [len_x len_hr len_br len_temp]
 
 		x = min(int(s) for s in lengths)
 
@@ -475,7 +475,7 @@ class MainWindow(QMainWindow):
 		len_br = len(real_br)
 		len_temp = len(real_temp)
 
-		lengths = [len_hr; len_br; len_temp]
+		lengths = [len_x len_hr len_br len_temp]
 
 		x = min(int(s) for s in lengths)
 
