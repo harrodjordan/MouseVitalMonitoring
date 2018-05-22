@@ -595,8 +595,8 @@ class PlotCanvas(FigureCanvas):
 
 			diff = time.time()
 
-			lcd_BR.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
-			lcd_TEMP.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
+			lcd_BR.setSegmentStyle(QLCDNumber.Flat)
+			lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
 
 
 			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
@@ -606,12 +606,12 @@ class PlotCanvas(FigureCanvas):
 
 			if (self.analyzeBR() > 80 | self.analyzeBR() < 50):
 
-				lcd_BR.setSegmentStyle(QLCDNumber.SegmentStyle.Filled)
+				lcd_BR.setSegmentStyle(QLCDNumber.Filled)
 
 
 			if (ConvertTemp(ReadChannel(2), 2) > 40 | ConvertTemp(ReadChannel(2), 2) < 35):
 
-				lcd_TEMP.setSegmentStyle(QLCDNumber.SegmentStyle.Filled)
+				lcd_TEMP.setSegmentStyle(QLCDNumber.Filled)
 
 
 
