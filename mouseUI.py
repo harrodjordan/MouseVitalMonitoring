@@ -646,7 +646,7 @@ class PlotCanvas(FigureCanvas):
 			lcd_TEMP.display(current_temp)
 
 			current_hr = self.analyzeHR()
-			current_br = self.analyzebR()
+			current_br = self.analyzeBR()
 
 			lcd_HR.display(current_hr)
 			lcd_BR.display(current_br)
