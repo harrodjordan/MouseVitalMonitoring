@@ -525,6 +525,8 @@ class PlotCanvas(FigureCanvas):
 		else:
 			self.addToBuf(buf, (time.time()-self.start))
 
+			print((time.time()-self.start))
+
 	
 
 	def analyzeHR(self):
