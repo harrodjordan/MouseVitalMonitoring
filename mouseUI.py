@@ -579,7 +579,7 @@ class PlotCanvas(FigureCanvas):
 
 			dist = np.append(dist ,(peakind[i+1] - peakind[i])/1000)
 
-		heart_rate = np.mean(1/np.array(dist)) 
+		heart_rate = np.mean(60/np.array(dist)) 
 		self.hr_data.append(heart_rate)
 		print(heart_rate)
 		return heart_rate
@@ -591,7 +591,7 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		BR = []
 
-		peakind, _ = signal.find_peaks(self.br_y, distance = 100)
+		peakind, _ = signal.find_peaks(self.br_y, distance = 1000)
 		print(peakind)
 
 		dist = []
@@ -601,7 +601,7 @@ class PlotCanvas(FigureCanvas):
 
 		breath_rate = np.mean(np.array(dist))
 		print(breath_rate)
-		breath_rate = 1/breath_rate
+		breath_rate = 60/breath_rate
 		self.br_data.append(breath_rate)
 		print(breath_rate)
 		return breath_rate
