@@ -431,14 +431,30 @@ class MainWindow(QMainWindow):
 
 		workingdir = os.getcwd() + '/Voltage Data/'
 
+		time = self.lbl.x
 		volt_hr = self.lbl.hr_volt
 		volt_br = self.lbl.br_volt
 		volt_temp = self.lbl.temp_volt
 
+		len_x = len(time)
+		len_hr = len(volt_hr)
+		len_br = len(volt_br)
+		len_temp = len(volt_temp)
+
+		lengths = [len_hr; len_br; len_temp]
+
+		x = min(int(s) for s in lengths)
+
+		time = time[0:(x-1)]
+		volt_hr = volt_hr[0:(x-1)]
+		volt_br = volt_br[0:(x-1)]
+		volt_temp = volt_temp[0:(x-1)]
+
+
 		fileName_volt = workingdir  + 'Voltage_Data' + today + '.csv'
 		
 
-		data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
+		data = pd.DataFrame({'Time (s)':time, 'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
 		data.to_csv(fileName_volt, index=False)
 
 	def writeRealCsv(self):
@@ -449,13 +465,29 @@ class MainWindow(QMainWindow):
 
 		workingdir = os.getcwd() + '/Vital Data/'
 
+		time = self.lbl.x
 		real_hr = self.lbl.hr_data
 		real_br = self.lbl.br_data
 		real_temp = self.lbl.temp_data
 
+		len_x = len(time)
+		len_hr = len(real_hr)
+		len_br = len(real_br)
+		len_temp = len(real_temp)
+
+		lengths = [len_hr; len_br; len_temp]
+
+		x = min(int(s) for s in lengths)
+
+		time = time[0:(x-1)]
+		real_hr = real_hr[0:(x-1)]
+		real_br = real_br[0:(x-1)]
+		real_temp = real_temp[0:(x-1)]
+
+
 		fileName_real = workingdir  + 'Vital_Data' + today +  '.csv'
 
-		data = pd.DataFrame({'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
+		data = pd.DataFrame({'Time (s)':time, 'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
 		data.to_csv(fileName_real, index=False)
 
 
