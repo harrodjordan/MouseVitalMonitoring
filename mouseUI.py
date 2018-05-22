@@ -453,7 +453,7 @@ class MainWindow(QMainWindow):
 		fileName_volt = workingdir  + 'Voltage_Data' + today + '.csv'
 		
 
-		data = pd.DataFrame({'Time (s)':time, 'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
+		data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
 		data.to_csv(fileName_volt, index=False)
 
 	def writeRealCsv(self):
