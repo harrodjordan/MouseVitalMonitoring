@@ -591,7 +591,7 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		BR = []
 
-		peakind = signal.find_peaks(self.br_y, distance = 2)
+		peakind, _ = signal.find_peaks(self.br_y, distance = 2)
 		print(peakind)
 
 		dist = []
