@@ -71,17 +71,17 @@ def ConvertTemp(data, places):
 	offset = 1/3300 
 	volts = (data / 4096);  
 
-	#print("Method Info")
-	#print(volts)
+	print("Method Info")
+	print(volts)
 	resistance = -10000*((5.0/volts)-1)  
-	#print(resistance) 
+	print(resistance) 
 	inverse = (1/20) + offset*np.log((resistance/10000))
 
 
 
 	temp = 1/inverse 
 	temp = round(temp, places)
-	#print(temp)
+	print(temp)
 	return temp 
 
 def WaveletTransform(data):
@@ -376,6 +376,8 @@ class MainWindow(QMainWindow):
 			newvalue = self.control.update(current_value=current_value)
 			print(newvalue)
 
+
+
 			if newvalue > current_value:
 
 				direction = 1
@@ -465,30 +467,13 @@ class MainWindow(QMainWindow):
 		real_br = np.array(self.lbl.br_data)
 		real_temp = np.array(self.lbl.temp_data)
 
-		len_hr = len(real_hr)
-		len_br = len(real_br)
-		len_temp = len(real_temp)
+		hr_nan = np.isnan(real_hr)
+		br_nan = np.isnan(real_br)
+		temp_nan = np.isnan(real_temp)
 
-		lengths = np.array([len_hr, len_br, len_temp])
-
-		print(lengths)
-		print(real_hr)
-		print(real_br)
-		print(real_temp)
-
-		x = min(int(s) for s in lengths)
-
-		real_hr = real_hr[0:(x-1)]
-		real_br = real_br[0:(x-1)]
-		real_temp = real_temp[0:(x-1)]
-
-		len_hr = len(real_hr)
-		len_br = len(real_br)
-		len_temp = len(real_temp)
-
-		lengths = np.array([len_hr, len_br, len_temp])
-
-		print(lengths)
+		real_hr[hr_nan] = 0
+		real_br[br_nan] = 0
+		real_temp[temp_nan] = 0
 
 
 		fileName_real = workingdir  + 'Vital_Data' + today +  '.csv'
@@ -592,7 +577,7 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		BR = []
 
-		peakind, _ = signal.find_peaks(self.br_y, distance = 1000)
+		peakind, _ = signal.find_peaks(self.br_y, distance = 300) #300 
 
 		dist = []
 		for i in range(len(peakind) - 2):
