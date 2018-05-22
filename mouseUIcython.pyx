@@ -145,10 +145,6 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
-		self.lcd_BR.setSegmentStyle('Flat')
-		self.lcd_HR.setSegmentStyle('Flat')
-		self.lcd_TEMP.setSegmentStyle('Flat')
-
 
 		self.control = PID()
 		self.control.setPoint(set_point=37)
@@ -599,8 +595,8 @@ class PlotCanvas(FigureCanvas):
 
 			diff = time.time()
 
-			lcd_BR.setSegmentStyle('Flat')
-			lcd_TEMP.setSegmentStyle('Flat')
+			lcd_BR.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
+			lcd_TEMP.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
 
 
 			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
@@ -610,12 +606,12 @@ class PlotCanvas(FigureCanvas):
 
 			if (self.analyzeBR() > 80 | self.analyzeBR() < 50):
 
-				lcd_BR.setSegmentStyle('Filled')
+				lcd_BR.setSegmentStyle(QLCDNumber.SegmentStyle.Filled)
 
 
 			if (ConvertTemp(ReadChannel(2), 2) > 40 | ConvertTemp(ReadChannel(2), 2) < 35):
 
-				lcd_TEMP.setSegmentStyle('Filled')
+				lcd_TEMP.setSegmentStyle(QLCDNumber.SegmentStyle.Filled)
 
 
 
