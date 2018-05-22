@@ -17,6 +17,9 @@ from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication, qApp, QPushButton, QHBoxLayout, QVBoxLayout, QWidget, QFrame, QSplitter, QStyleFactory, QLCDNumber, QLabel, QInputDialog
 
 import spidev 
+import subprocess as sub 
+import datetime 
+from datetime import datetime as dt
 import time 
 import os
 import pywt 
@@ -142,11 +145,21 @@ class MainWindow(QMainWindow):
 		self.lcd_HR = QLCDNumber(self)
 		self.lcd_TEMP = QLCDNumber(self)
 
+		self.lcd_BR.setSegmentStyle('Flat')
+		self.lcd_HR.setSegmentStyle('Flat')
+		self.lcd_TEMP.setSegmentStyle('Flat')
+
 
 		self.control = PID()
 		self.control.setPoint(set_point=37)
 
 		print("Initializing MainWindow")
+
+		if not os.path.isdir('/usr/pi/Documents/MouseVitalMonitoring/Voltage Data'):
+			os.mkdir('/usr/pi/Documents/MouseVitalMonitoring/Voltage Data')
+
+		if not os.path.isdir('/usr/pi/Documents/MouseVitalMonitoring/Vital Data'):
+			os.mkdir('/usr/pi/Documents/MouseVitalMonitoring/Vital Data')
 
 
 		self.initUI()
@@ -345,9 +358,15 @@ class MainWindow(QMainWindow):
 
 	def Close(self):
 
-		self.p.stop()
-		GPIO.cleanup()
+
+
+		
+		sub.call(["git", "add", "."])
+		sub.call(["git", "commit", "-m"])
+		sub.call(["git", "push"])
+
 		sys.exit()
+
 
 
 	def tempControl(self):
@@ -410,15 +429,17 @@ class MainWindow(QMainWindow):
 
 	def writeVoltageCsv(self, fileName):
 
+		today = dt.now()
 
+		today = today.strftime("%Y-%m-%d %H:%M:%S")
 
-		workingdir = os.getcwd()
+		workingdir = os.getcwd() + '/Voltage Data/'
 
-		volt_hr = self.lbl.volt_hr
-		volt_br = self.lbl.volt_br
-		volt_temp = self.lbl.volt_temp
+		volt_hr = self.lbl.hr_volt
+		volt_br = self.lbl.br_volt
+		volt_temp = self.lbl.temp_volt
 
-		fileName_volt = workingdir + fileName + 'Voltage_Data.csv'
+		fileName_volt = workingdir + fileName + 'Voltage_Data' + today + '.csv'
 		
 
 		data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
@@ -426,13 +447,17 @@ class MainWindow(QMainWindow):
 
 	def writeRealCsv(self, fileName):
 
-		workingdir = os.getcwd()
+		today = dt.now()
 
-		real_hr = self.lbl.real_hr
-		real_br = self.lbl.real_br
-		real_temp = self.lbl.real_temp
+		today = today.strftime("%Y-%m-%d %H:%M:%S")
 
-		fileName_real = workingdir + fileName + 'Vital_Data.csv'
+		workingdir = os.getcwd() + '/Vital Data/'
+
+		real_hr = self.lbl.hr_data
+		real_br = self.lbl.br_data
+		real_temp = self.lbl.temp_data
+
+		fileName_real = workingdir + fileName + 'Vital_Data' + today +  '.csv'
 
 		data = pd.DataFrame({'Heart Rate (bpm)':real_hr, 'Breathing Rate (bpm)':real_temp, 'Temperature (F)':real_temp})
 		data.to_csv(fileName_real, index=False)
@@ -511,8 +536,6 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		HR = []
 
-		#HR_wave = WaveletTransform(self.hr_y)
-		#print(HR_wave.shape)
 		peakind = signal.find_peaks(self.hr_y, distance = 2)
 
 		dist = []
@@ -533,7 +556,6 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		BR = []
 
-		#BR_wave = WaveletTransform(self.br_y)
 		peakind = signal.find_peaks(self.br_y, distance = 2)
 
 		dist = []
@@ -563,8 +585,6 @@ class PlotCanvas(FigureCanvas):
 		xtext_temp = self.Temp.set_xlabel('Time (s)') # returns a Text instance
 		ytext_temp = self.Temp.set_ylabel('Volts (V)')
 
-		#self.start = time.time()
-
 		line_hr, = self.HR.plot(self.x ,self.hr_y, '-g')
 		line_br, = self.BR.plot(self.x ,self.br_y,  '-c')
 		line_temp, = self.Temp.plot(self.x, self.temp_y, '-r')
@@ -579,9 +599,25 @@ class PlotCanvas(FigureCanvas):
 
 			diff = time.time()
 
+			lcd_BR.setSegmentStyle('Flat')
+			lcd_TEMP.setSegmentStyle('Flat')
+
+
 			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
-			lcd_BR.display(self.analyzeBR())
 			lcd_HR.display(self.analyzeHR())
+			lcd_BR.display(self.analyzeBR())
+
+
+			if (self.analyzeBR() > 80 | self.analyzeBR() < 50):
+
+				lcd_BR.setSegmentStyle('Filled')
+
+
+			if (ConvertTemp(ReadChannel(2), 2) > 40 | ConvertTemp(ReadChannel(2), 2) < 35):
+
+				lcd_TEMP.setSegmentStyle('Filled')
+
+
 
 			self.add(self.x, 0, time_check = True)
 			self.add(self.hr_y, 0)
