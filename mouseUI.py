@@ -157,6 +157,7 @@ class MainWindow(QMainWindow):
 		if not os.path.isdir('/home/pi/Documents/MouseVitalMonitoring/Vital Data'):
 			os.mkdir('/home/pi/Documents/MouseVitalMonitoring/Vital Data')
 
+		GPIO.output(33, 1)
 
 		self.initUI()
 
@@ -570,6 +571,8 @@ class PlotCanvas(FigureCanvas):
 		print(heart_rate)
 		return heart_rate
 
+		# filtering for HR and BR signal, crosstalk removal 
+		# see whether you need to wait to charge GPIO channels before sampling 
 
 	def analyzeBR(self):
 
@@ -676,7 +679,6 @@ class PlotCanvas(FigureCanvas):
 			
 
 			self.fig.canvas.flush_events()
-			#plt.pause(0.00005)
 
 			plt.show()
 
@@ -684,11 +686,11 @@ class PlotCanvas(FigureCanvas):
 			current_value = ConvertTemp(ReadChannel(2), 1)
 
 
-			#print(current_value)
+			print(current_value)
 
 			newvalue = control.update(current_value=current_value)
 			
-			#print(newvalue)
+			print(newvalue)
 
 			if newvalue > current_value:
 
@@ -700,7 +702,7 @@ class PlotCanvas(FigureCanvas):
 				direction = 0
 
 
-			GPIO.output(33, 1)
+			#GPIO.output(33, 1)
 			GPIO.output(29, direction)
 			
 
