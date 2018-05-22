@@ -423,7 +423,7 @@ class MainWindow(QMainWindow):
 
 	# IN PROGRESS - last line of loadCSV needs to be changed and graphs need to be made self variables upon initialization for dynamic changing and one for models for each vital
 
-	def writeVoltageCsv(self, fileName):
+	def writeVoltageCsv(self):
 
 		today = dt.now()
 
@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
 		data = pd.DataFrame({'Heart Rate (V)':volt_hr, 'Breathing Rate (V)':volt_br, 'Temperature (V)':volt_temp})
 		data.to_csv(fileName_volt, index=False)
 
-	def writeRealCsv(self, fileName):
+	def writeRealCsv(self):
 
 		today = dt.now()
 
