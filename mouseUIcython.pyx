@@ -613,12 +613,12 @@ class PlotCanvas(FigureCanvas):
 
 				lcd_TEMP.setSegmentStyle(QLCDNumber.Filled)
 
+			for i in range(500):
 
-
-			self.add(self.x, 0, time_check = True)
-			self.add(self.hr_y, 0)
-			self.add(self.br_y, 1)
-			self.add(self.temp_y, 2)
+				self.add(self.x, 0, time_check = True)
+				self.add(self.hr_y, 0)
+				self.add(self.br_y, 1)
+				self.add(self.temp_y, 2)
 
 			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
 			self.HR.set_xlim(min(self.x), max(self.x))
