@@ -368,7 +368,6 @@ class MainWindow(QMainWindow):
 
 	def tempControl(self):
 
-
 		while True:
 
 			current_value = ConvertTemp(ReadChannel(2), 1)
@@ -397,7 +396,7 @@ class MainWindow(QMainWindow):
 		
 	def startVitals(self):
 
-		self.tempControl()
+		#self.tempControl()
 		self.lbl.plot()
 		
 
@@ -642,7 +641,32 @@ class PlotCanvas(FigureCanvas):
 
 			self.fig.canvas.flush_events()
 			#plt.pause(0.00005)
+
 			plt.show()
+
+
+			current_value = ConvertTemp(ReadChannel(2), 1)
+
+			#print(ReadChannel(2))
+			print(current_value)
+
+			newvalue = self.control.update(current_value=current_value)
+			print(newvalue)
+
+			if newvalue > current_value:
+
+				direction = 1
+
+
+			else: 
+
+				direction = 0
+
+
+			GPIO.output(33, 1)
+			GPIO.output(29, direction)
+			
+			
 			self.current_time = time.time()
 
 			print("Time to loop")
