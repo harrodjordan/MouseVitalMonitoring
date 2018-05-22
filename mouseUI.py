@@ -581,6 +581,7 @@ class PlotCanvas(FigureCanvas):
 
 		heart_rate = np.mean(60/np.array(dist)) 
 		self.hr_data.append(heart_rate)
+		print('HR')
 		print(heart_rate)
 		return heart_rate
 
@@ -592,17 +593,15 @@ class PlotCanvas(FigureCanvas):
 		BR = []
 
 		peakind, _ = signal.find_peaks(self.br_y, distance = 1000)
-		print(peakind)
 
 		dist = []
 		for i in range(len(peakind) - 2):
 
 			dist = np.append(dist, (peakind[i+1] - peakind[i])/1000)
 
-		breath_rate = np.mean(np.array(dist))
-		print(breath_rate)
-		breath_rate = 60/breath_rate
+		breath_rate = np.mean(60/np.array(dist))
 		self.br_data.append(breath_rate)
+		print('BR')
 		print(breath_rate)
 		return breath_rate
 
@@ -642,18 +641,23 @@ class PlotCanvas(FigureCanvas):
 			lcd_BR.setSegmentStyle(QLCDNumber.Flat)
 			lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
 
+			current_temp = ConvertTemp(ReadChannel(2), 2)
 
-			lcd_TEMP.display(ConvertTemp(ReadChannel(2), 2))
-			lcd_HR.display(self.analyzeHR())
-			lcd_BR.display(self.analyzeBR())
+			lcd_TEMP.display(current_temp)
+
+			current_hr = self.analyzeHR()
+			current_br = self.analyzebR()
+
+			lcd_HR.display(current_hr)
+			lcd_BR.display(current_br)
 
 
-			if (self.analyzeBR() > 80 or self.analyzeBR() < 50):
+			if (current_br > 80 or current_br < 50):
 
 				lcd_BR.setSegmentStyle(QLCDNumber.Filled)
 
 
-			if (ConvertTemp(ReadChannel(2), 2) > 40 or ConvertTemp(ReadChannel(2), 2) < 35):
+			if (current_temp > 40 or current_temp < 35):
 
 				lcd_TEMP.setSegmentStyle(QLCDNumber.Filled)
 
