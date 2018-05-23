@@ -70,15 +70,11 @@ def ConvertTemp(data):
 
 	offset = 1/3300 
 	volts = (data / 4096);  
-
-	print("Method Info")
-	print(volts)
 	resistance = 10000*((5.0/volts)-1)  
-	print(resistance) 
+
 	inverse = (1/20) + offset*np.log((resistance/10000))
 	temp = 1/inverse 
-	print(temp)
-	print("End Method Info")
+
 	return temp 
 
 def WaveletTransform(data):
@@ -144,7 +140,7 @@ class MainWindow(QMainWindow):
 
 
 		self.control = PID()
-		self.control.setPoint(set_point=25)
+		self.control.setPoint(set_point=35)
 
 		print("Initializing MainWindow")
 
