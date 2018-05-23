@@ -366,7 +366,7 @@ class MainWindow(QMainWindow):
 
 		while True:
 
-			current_value = ConvertTemp(ReadChannel(2), 1)
+			current_value = ConvertTemp(ReadChannel(2))
 
 			#print(ReadChannel(2))
 			print(current_value)
@@ -644,7 +644,7 @@ class PlotCanvas(FigureCanvas):
 			lcd_BR.setSegmentStyle(QLCDNumber.Flat)
 			lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
 
-			current_temp = ConvertTemp(ReadChannel(2), 2)
+			current_temp = ConvertTemp(ReadChannel(2))
 
 			self.temp_data.append(current_temp)
 
@@ -698,7 +698,7 @@ class PlotCanvas(FigureCanvas):
 			plt.show()
 
 
-			current_value = ConvertTemp(ReadChannel(2), 1)
+			current_value = ConvertTemp(ReadChannel(2))
 
 
 			print(current_value)
