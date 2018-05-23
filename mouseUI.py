@@ -544,14 +544,14 @@ class PlotCanvas(FigureCanvas):
 			buf.appendleft(val)
 
 
-		highz, _ = signal.lfilter(highpassb, a, buf, zi=self.highpassi*buf[0])
-		lowz, _ = signal.lfilter(lowpassb, a, buf, zi=self.lowpassi*buf[0])
+		highz, _ = signal.lfilter(self.highpassb, self.highpassa, buf, zi=self.highpassi*buf[0])
+		lowz, _ = signal.lfilter(self.lowpassb, self.lowpassa, buf, zi=self.lowpassi*buf[0])
 
-		highz2, _ = signal.lfilter(highpassb, a, highz, zi=highpassi*highz[0])
-		lowz2, _ = signal.lfilter(lowpassb, a, lowz, zi=lowpassi*lowz[0])
+		highz2, _ = signal.lfilter(self.highpassb, self.highpassa, highz, zi=highpassi*highz[0])
+		lowz2, _ = signal.lfilter(self.lowpassb, self.lowpassa, lowz, zi=lowpassi*lowz[0])
 
-		highy = signal.filtfilt(highpassb, a, buf)
-		buf = signal.filtfilt(highpassb, a, highy)
+		highy = signal.filtfilt(self.highpassb, self.highpassa, buf)
+		buf = signal.filtfilt(self.lowpassb, self.lowpassa, highy)
 
   # add data
 	def add(self, buf, chan, time_check = False):
