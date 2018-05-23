@@ -66,22 +66,19 @@ def ConvertVolts(data, places):
 	volts = round(volts, places)
 	return volts 
 
-def ConvertTemp(data, places):
+def ConvertTemp(data):
 
 	offset = 1/3300 
 	volts = (data / 4096);  
 
 	print("Method Info")
 	print(volts)
-	resistance = -10000*((5.0/volts)-1)  
+	resistance = 10000*((5.0/volts)-1)  
 	print(resistance) 
 	inverse = (1/20) + offset*np.log((resistance/10000))
-
-
-
 	temp = 1/inverse 
-	temp = round(temp, places)
 	print(temp)
+	print("End Method Info")
 	return temp 
 
 def WaveletTransform(data):
@@ -528,6 +525,14 @@ class PlotCanvas(FigureCanvas):
 		FigureCanvas.updateGeometry(self)
 		self.fig.tight_layout(pad=1, w_pad=0.1, h_pad=0.1)
 
+		self.highpassb, self.highpassa = signal.butter(4, 0.01, 'highpass', analog=True)
+		self.lowpassb, self.lowpassa = signal.butter(4, 20, 'lowpass', analog=True)
+
+		self.highpassi = signal.lfilter_zi(self.highpassb, self.highpassa)
+		self.lowpassi = signal.lfilter_zi(self.lowpassb, self.lowpassa)
+
+
+
 		print("Initializing PlotCanvas")
 
 	def addToBuf(self, buf, val):
@@ -537,6 +542,16 @@ class PlotCanvas(FigureCanvas):
 		else:
 			buf.pop()
 			buf.appendleft(val)
+
+
+		highz, _ = signal.lfilter(highpassb, a, buf, zi=self.highpassi*buf[0])
+		lowz, _ = signal.lfilter(lowpassb, a, buf, zi=self.lowpassi*buf[0])
+
+		highz2, _ = signal.lfilter(highpassb, a, highz, zi=highpassi*highz[0])
+		lowz2, _ = signal.lfilter(lowpassb, a, lowz, zi=lowpassi*lowz[0])
+
+		highy = signal.filtfilt(highpassb, a, buf)
+		buf = signal.filtfilt(highpassb, a, highy)
 
   # add data
 	def add(self, buf, chan, time_check = False):
@@ -549,12 +564,13 @@ class PlotCanvas(FigureCanvas):
 		else:
 			self.addToBuf(buf, (time.time()-self.start))
 
-	
+
 
 	def analyzeHR(self):
 
 		Value = []
 		HR = []
+
 
 		peakind, _ = signal.find_peaks(self.hr_y, distance = 100)
 
@@ -571,8 +587,7 @@ class PlotCanvas(FigureCanvas):
 		print(heart_rate)
 		return heart_rate
 
-		# filtering for HR and BR signal, crosstalk removal 
-		# see whether you need to wait to charge GPIO channels before sampling 
+		# see if you need to charge the GPIO channels before sampling 
 
 	def analyzeBR(self):
 
