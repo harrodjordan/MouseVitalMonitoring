@@ -537,14 +537,14 @@ class PlotCanvas(FigureCanvas):
 		print("Initializing PlotCanvas")
 
 	def crosstalk(self):
-		
+
 	    HR_iter = iter(self.hr_y)
 	    BR_iter = iter(self.br_y)
 
-	    for (hr, br) in (self.hr_y, self.br_y):
+	    for i in range(50)
 
 	        self.br_y.popleft()
-	        self.br_y.append((br-hr))
+	        self.br_y.append((self.br_y[i]-self.hr_y[i]))
 
 
 	def addToBuf(self, buf, val):
