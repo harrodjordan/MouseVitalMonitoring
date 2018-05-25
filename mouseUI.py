@@ -29,6 +29,7 @@ import Adafruit_GPIO.SPI as SPI
 import 	Adafruit_Python_MCP3008.Adafruit_MCP3008 as Adafruit_MCP3008 
 import pandas as pd
 from collections import deque
+
 import RPi.GPIO as GPIO
 
 #Import the MCP4725 module.
@@ -535,14 +536,24 @@ class PlotCanvas(FigureCanvas):
 
 		print("Initializing PlotCanvas")
 
+	def crosstalk(self):
+	    # moving_average([40, 30, 50, 46, 39, 44]) --> 40.0 42.0 45.0 43.0
+	    #http://en.wikipedia.org/wiki/Moving_average
+	    HR_iter = iter(self.hr_y)
+	    BR_iter = iter(self.br_y)
+
+	    for (hr, br) in (HR_iter, BR_iter):
+	        self.br_y.popleft()
+	        self.br_y.append((br-hr))
+
 
 	def addToBuf(self, buf, val):
 
 		if len(buf) < self.window:
 			buf.append(val)
 		else:
-			buf.pop()
-			buf.appendleft(val)
+			buf.popleft()
+			buf.append(val)
 
 
 		# highz, _ = signal.lfilter(self.highpassb, self.highpassa, buf, zi=self.highpassi*buf[0])
@@ -677,7 +688,7 @@ class PlotCanvas(FigureCanvas):
 
 			self.add(self.temp_y, 2)
 
-			self.br_y.subtract(self.hr_y)
+			self.crosstalk()
 
 
 			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
