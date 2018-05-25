@@ -123,7 +123,7 @@ class MainWindow(QMainWindow):
 
 		self.left = 10
 		self.top = 10
-		self.title = 'Rodent Vitals Monitoring Software Demo'
+		self.title = 'Rodent Vitals Monitoring Software'
 		self.width = 700
 		self.height = 500
 		self.model = [] 
@@ -265,23 +265,11 @@ class MainWindow(QMainWindow):
 	
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu('File')
-		viewMenu = menubar.addMenu('View')
 		recordingMenu = menubar.addMenu('Recording Options')
 
 		self.statusbar = self.statusBar()
 		self.statusbar.showMessage('Ready')
-	
-		impMenu = QMenu('Import', self)
-		impAct = QAction('Import data', self) 
-		impAct.triggered.connect(lambda: self.loadCsv)
-		impMenu.addAction(impAct)
-
-		expMenu = QMenu('Export', self)
-		expAct = QAction('Export data', self) 
-		expAct.triggered.connect(lambda: self.writeCsv)
-		expMenu.addAction(expAct)
-		
-		newAct = QAction('New', self)       
+ 
 
 		changeWindowSize = QAction('Change Window Size', self)
 		changeWindowSize.triggered.connect(lambda: self.windowSizeInput()) 
@@ -291,10 +279,8 @@ class MainWindow(QMainWindow):
 
 
 		recordingMenu.addAction(changeWindowSize)
-
 		recordingMenu.addAction(resetWindow)
 
-		
 		fileMenu.addAction(newAct)
 		fileMenu.addMenu(impMenu)
 		fileMenu.addMenu(expMenu)
