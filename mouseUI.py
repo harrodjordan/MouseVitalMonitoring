@@ -355,7 +355,7 @@ class MainWindow(QMainWindow):
 
 
 		sub.call(["git", "add", "."])
-		sub.call(["git", "commit", "-m", "Data Updates",today])
+		sub.call(["git", "commit", "-m", "Data Updates", today])
 		sub.call(["git", "push"])
 
 		sys.exit()
@@ -535,6 +535,7 @@ class PlotCanvas(FigureCanvas):
 
 		print("Initializing PlotCanvas")
 
+
 	def addToBuf(self, buf, val):
 
 		if len(buf) < self.window:
@@ -547,8 +548,8 @@ class PlotCanvas(FigureCanvas):
 		highz, _ = signal.lfilter(self.highpassb, self.highpassa, buf, zi=self.highpassi*buf[0])
 		lowz, _ = signal.lfilter(self.lowpassb, self.lowpassa, buf, zi=self.lowpassi*buf[0])
 
-		highz2, _ = signal.lfilter(self.highpassb, self.highpassa, highz, zi=highpassi*highz[0])
-		lowz2, _ = signal.lfilter(self.lowpassb, self.lowpassa, lowz, zi=lowpassi*lowz[0])
+		highz2, _ = signal.lfilter(self.highpassb, self.highpassa, highz, zi=self.highpassi*highz[0])
+		lowz2, _ = signal.lfilter(self.lowpassb, self.lowpassa, lowz, zi=self.lowpassi*lowz[0])
 
 		highy = signal.filtfilt(self.highpassb, self.highpassa, buf)
 		buf = signal.filtfilt(self.lowpassb, self.lowpassa, highy)
