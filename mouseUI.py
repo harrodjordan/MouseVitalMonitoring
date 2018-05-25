@@ -677,7 +677,8 @@ class PlotCanvas(FigureCanvas):
 
 			self.add(self.temp_y, 2)
 
-			self.br_y = self.br_y - self.hr_y	
+			self.br_y.subtract(self.hr_y)
+
 
 			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
 			self.HR.set_xlim(min(self.x), max(self.x))
