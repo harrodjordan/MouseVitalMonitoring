@@ -369,7 +369,6 @@ class MainWindow(QMainWindow):
 
 			current_value = ConvertTemp(ReadChannel(2))
 
-			#print(ReadChannel(2))
 			print(current_value)
 
 			newvalue = self.control.update(current_value=current_value)
@@ -489,7 +488,7 @@ class PlotCanvas(FigureCanvas):
 	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
 
 		plt.ion()
-		#self.data = genfromtxt('example-data.csv', dtype=None, delimiter=',')
+
 		self.fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
 		self.title = title
@@ -526,13 +525,6 @@ class PlotCanvas(FigureCanvas):
 		FigureCanvas.updateGeometry(self)
 		self.fig.tight_layout(pad=1, w_pad=0.1, h_pad=0.1)
 
-		# self.highpassb, self.highpassa = signal.butter(4, 0.01, 'highpass', analog=True)
-		# self.lowpassb, self.lowpassa = signal.butter(4, 20, 'lowpass', analog=True)
-
-		# self.highpassi = signal.lfilter_zi(self.highpassb, self.highpassa)
-		# self.lowpassi = signal.lfilter_zi(self.lowpassb, self.lowpassa)
-
-
 
 		print("Initializing PlotCanvas")
 
@@ -555,26 +547,18 @@ class PlotCanvas(FigureCanvas):
 			buf.popleft()
 			buf.append(val)
 
-
-		# highz, _ = signal.lfilter(self.highpassb, self.highpassa, buf, zi=self.highpassi*buf[0])
-		# lowz, _ = signal.lfilter(self.lowpassb, self.lowpassa, buf, zi=self.lowpassi*buf[0])
-
-		# highz2, _ = signal.lfilter(self.highpassb, self.highpassa, highz, zi=self.highpassi*highz[0])
-		# lowz2, _ = signal.lfilter(self.lowpassb, self.lowpassa, lowz, zi=self.lowpassi*lowz[0])
-
-		# highy = signal.filtfilt(self.highpassb, self.highpassa, buf)
-		# buf = signal.filtfilt(self.lowpassb, self.lowpassa, highy)
-
   # add data
-	def add(self, buf, chan, time_check = False):
+	def add(self, buf, volts, chan, time_check = False):
 		
 		if time_check == False: 
 		
-			self.addToBuf(buf, ConvertVolts(ReadChannel(chan), places=2))
+			self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
+			volts.append(ReadChannel(chan))
 			
-
 		else:
+
 			self.addToBuf(buf, (time.time()-self.start))
+			volts.append((time.time()-self.start))
 
 
 
@@ -595,8 +579,7 @@ class PlotCanvas(FigureCanvas):
 
 		heart_rate = np.mean(60/np.array(dist)) 
 		self.hr_data.append(heart_rate)
-		print('HR')
-		print(heart_rate)
+
 		return heart_rate
 
 		# see if you need to charge the GPIO channels before sampling 
@@ -616,8 +599,7 @@ class PlotCanvas(FigureCanvas):
 
 		breath_rate = np.mean(60/np.array(dist))
 		self.br_data.append(breath_rate)
-		print('BR')
-		print(breath_rate)
+
 		return breath_rate
 
 
@@ -681,10 +663,10 @@ class PlotCanvas(FigureCanvas):
 
 			for i in range(500):
 
-				self.add(self.x, 0, time_check = True)
-				self.add(self.hr_y, 0)
-				self.add(self.br_y, 1)
-				self.add(self.temp_y, 2)
+				self.add(self.x,, self.time_data, 0, time_check = True)
+				self.add(self.hr_y, self.hr_volt, 0)
+				self.add(self.br_y, self.br_volt, 1)
+				self.add(self.temp_y, self.temp_volt, 2)
 
 			#self.crosstalk()
 
@@ -728,8 +710,6 @@ class PlotCanvas(FigureCanvas):
 
 				direction = 1
 
-
-			#GPIO.output(33, 1)
 			GPIO.output(29, direction)
 			
 
