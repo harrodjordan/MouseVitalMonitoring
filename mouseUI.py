@@ -552,8 +552,8 @@ class PlotCanvas(FigureCanvas):
 		
 		if time_check == False: 
 		
-			self.addToBuf(buf, ConvertVolts(ReadChannel(chan)))
-			volts.append(ReadChannel(chan))
+			self.addToBuf(buf, ConvertVolts(ReadChannel(chan), places=2))
+			volts.append(ConvertVolts(ReadChannel(chan), places=2))
 			
 		else:
 
