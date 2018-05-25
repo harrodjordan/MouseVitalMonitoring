@@ -311,7 +311,7 @@ class MainWindow(QMainWindow):
 		#Making the toolbar 
 
 		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
-		exitAct.triggered.connect(lambda: sys.exit())
+		exitAct.triggered.connect(lambda: self.Close())
 
 		exportAct = QAction(QIcon('512x512.png'), 'Export Vitals', self)
 		exportAct.triggered.connect(lambda: self.writeRealCsv())
@@ -356,7 +356,7 @@ class MainWindow(QMainWindow):
 
 
 		sub.call(["git", "add", "."])
-		sub.call(["git", "commit", "-m", "Data Updates", today])
+		sub.call(["git", "commit", "-m", "Data Updates"])
 		sub.call(["git", "push"])
 
 		sys.exit()
@@ -684,12 +684,9 @@ class PlotCanvas(FigureCanvas):
 				self.add(self.x, 0, time_check = True)
 				self.add(self.hr_y, 0)
 				self.add(self.br_y, 1)
-				
+				self.add(self.temp_y, 2)
 
-			self.add(self.temp_y, 2)
-
-			self.crosstalk()
-
+			#self.crosstalk()
 
 			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
 			self.HR.set_xlim(min(self.x), max(self.x))
