@@ -663,7 +663,7 @@ class PlotCanvas(FigureCanvas):
 
 			for i in range(500):
 
-				self.add(self.x,, self.time_data, 0, time_check = True)
+				self.add(self.x, self.time_data, 0, time_check = True)
 				self.add(self.hr_y, self.hr_volt, 0)
 				self.add(self.br_y, self.br_volt, 1)
 				self.add(self.temp_y, self.temp_volt, 2)
