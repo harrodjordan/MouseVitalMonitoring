@@ -525,11 +525,11 @@ class PlotCanvas(FigureCanvas):
 		FigureCanvas.updateGeometry(self)
 		self.fig.tight_layout(pad=1, w_pad=0.1, h_pad=0.1)
 
-		self.highpassb, self.highpassa = signal.butter(4, 0.01, 'highpass', analog=True)
-		self.lowpassb, self.lowpassa = signal.butter(4, 20, 'lowpass', analog=True)
+		# self.highpassb, self.highpassa = signal.butter(4, 0.01, 'highpass', analog=True)
+		# self.lowpassb, self.lowpassa = signal.butter(4, 20, 'lowpass', analog=True)
 
-		self.highpassi = signal.lfilter_zi(self.highpassb, self.highpassa)
-		self.lowpassi = signal.lfilter_zi(self.lowpassb, self.lowpassa)
+		# self.highpassi = signal.lfilter_zi(self.highpassb, self.highpassa)
+		# self.lowpassi = signal.lfilter_zi(self.lowpassb, self.lowpassa)
 
 
 
@@ -545,14 +545,14 @@ class PlotCanvas(FigureCanvas):
 			buf.appendleft(val)
 
 
-		highz, _ = signal.lfilter(self.highpassb, self.highpassa, buf, zi=self.highpassi*buf[0])
-		lowz, _ = signal.lfilter(self.lowpassb, self.lowpassa, buf, zi=self.lowpassi*buf[0])
+		# highz, _ = signal.lfilter(self.highpassb, self.highpassa, buf, zi=self.highpassi*buf[0])
+		# lowz, _ = signal.lfilter(self.lowpassb, self.lowpassa, buf, zi=self.lowpassi*buf[0])
 
-		highz2, _ = signal.lfilter(self.highpassb, self.highpassa, highz, zi=self.highpassi*highz[0])
-		lowz2, _ = signal.lfilter(self.lowpassb, self.lowpassa, lowz, zi=self.lowpassi*lowz[0])
+		# highz2, _ = signal.lfilter(self.highpassb, self.highpassa, highz, zi=self.highpassi*highz[0])
+		# lowz2, _ = signal.lfilter(self.lowpassb, self.lowpassa, lowz, zi=self.lowpassi*lowz[0])
 
-		highy = signal.filtfilt(self.highpassb, self.highpassa, buf)
-		buf = signal.filtfilt(self.lowpassb, self.lowpassa, highy)
+		# highy = signal.filtfilt(self.highpassb, self.highpassa, buf)
+		# buf = signal.filtfilt(self.lowpassb, self.lowpassa, highy)
 
   # add data
 	def add(self, buf, chan, time_check = False):
