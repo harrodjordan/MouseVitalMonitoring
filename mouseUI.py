@@ -537,12 +537,12 @@ class PlotCanvas(FigureCanvas):
 		print("Initializing PlotCanvas")
 
 	def crosstalk(self):
-	    # moving_average([40, 30, 50, 46, 39, 44]) --> 40.0 42.0 45.0 43.0
-	    #http://en.wikipedia.org/wiki/Moving_average
+		
 	    HR_iter = iter(self.hr_y)
 	    BR_iter = iter(self.br_y)
 
-	    for (hr, br) in (HR_iter, BR_iter):
+	    for (hr, br) in (self.hr_y, self.br_y):
+
 	        self.br_y.popleft()
 	        self.br_y.append((br-hr))
 
