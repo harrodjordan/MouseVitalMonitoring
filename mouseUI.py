@@ -349,9 +349,13 @@ class MainWindow(QMainWindow):
 
 	def Close(self):
 
+		today = dt.now()
+
+		today = today.strftime("%Y-%m-%d-%H%M%S")
+
 
 		sub.call(["git", "add", "."])
-		sub.call(["git", "commit", "-m"])
+		sub.call(["git", "commit", "-m", "Data Updates",today])
 		sub.call(["git", "push"])
 
 		sys.exit()
