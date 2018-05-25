@@ -691,9 +691,7 @@ class PlotCanvas(FigureCanvas):
 
 			plt.show()
 
-
 			current_value = ConvertTemp(ReadChannel(2))
-
 
 			print(current_value)
 
