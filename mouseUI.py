@@ -299,10 +299,10 @@ class MainWindow(QMainWindow):
 		exitAct = QAction(QIcon('cancel-512.png'), 'Exit', self)
 		exitAct.triggered.connect(lambda: self.Close())
 
-		exportAct = QAction(QIcon('512x512.png'), 'Export Vitals', self)
+		exportAct = QAction(QIcon('200px-Love_Heart_SVG.svg.png'), 'Export Vitals', self)
 		exportAct.triggered.connect(lambda: self.writeRealCsv())
 
-		exportRawAct = QAction(QIcon('document.png'), 'Export Raw Data', self)
+		exportRawAct = QAction(QIcon('LVtemp0360812798988.png'), 'Export Raw Data', self)
 		exportRawAct.triggered.connect(lambda: self.writeVoltageCsv())
 
 		startAct = QAction(QIcon('graphs icon.png'), 'Start Graphs', self)
@@ -341,9 +341,9 @@ class MainWindow(QMainWindow):
 		today = today.strftime("%Y-%m-%d-%H%M%S")
 
 
-		sub.call(["git", "add", "."])
-		sub.call(["git", "commit", "-m", "Data Updates"])
-		sub.call(["git", "push"])
+		#sub.call(["git", "add", "."])
+		#sub.call(["git", "commit", "-m", "Data Updates"])
+		#sub.call(["git", "push"])
 
 		sys.exit()
 
@@ -392,7 +392,7 @@ class MainWindow(QMainWindow):
 		
 		if ok:
 			newSize = num
-			self.lbl.plot(window=newSize, start = self.lbl.current_time)
+			self.lbl.plot(window=newSize*10000, start = self.lbl.current_time)
 
 	def windowReset(self):
 
