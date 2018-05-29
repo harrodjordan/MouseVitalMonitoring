@@ -315,8 +315,6 @@ class MainWindow(QMainWindow):
 		vitalsAct.triggered.connect(lambda: self.startVitals())
 
 
-
-		
 		self.toolbar = self.addToolBar('Exit')
 		self.toolbar = self.addToolBar('Save')
 		self.toolbar = self.addToolBar('Export')
