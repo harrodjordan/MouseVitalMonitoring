@@ -35,6 +35,7 @@ import scipy.signal as signal
 from numpy import genfromtxt
 import pandas as pd
 import pywt
+from collections import deque
 
 def WaveletTransform(data):
 	cA, cD = pywt.dwt(data, 'db4')
@@ -382,36 +383,41 @@ class MainWindow(QMainWindow):
 
 class PlotCanvas(FigureCanvas):
 
-	
- 
 	def __init__(self, parent=None, width=5, height=4, dpi=100, title=None, color='r-'):
+
 		plt.ion()
-		self.data_hr = genfromtxt('breathdata.csv', dtype=None, delimiter=',')
-		self.data_br = genfromtxt('heartdata.csv', dtype=None, delimiter=',')
-		self.data_temp = genfromtxt('faketemp2.csv', dtype=None, delimiter=',')
-		self.data = genfromtxt('timedata.csv', dtype=None, delimiter=',')
-		print(self.data.shape)
-		print(self.data_hr.shape)
 
 		self.fig = Figure(figsize=(width, height), dpi=dpi)
 		self.color = color 
 		self.title = title
 		self.current_time = 0
-		self.window = 50
+		self.window = 10000
 
 		self.HR = self.fig.add_subplot(311)
 		self.BR = self.fig.add_subplot(312)
 		self.Temp = self.fig.add_subplot(313)
 
-		self.volt_hr = None
-		self.real_hr = None
+		self.data_hr = genfromtxt('breathdata.csv', dtype=None, delimiter=',')
+		self.data_br = genfromtxt('heartdata.csv', dtype=None, delimiter=',')
+		self.data_temp = genfromtxt('faketemp2.csv', dtype=None, delimiter=',')
+		self.data = genfromtxt('timedata.csv', dtype=None, delimiter=',')
 
-		self.volt_br = None
-		self.real_br = None
+		self.hr_y = deque([0.0]*self.window)
+		self.br_y = deque([0.0]*self.window)
+		self.temp_y = deque([0.0]*self.window)
+		self.x = deque([0.0]*self.window)
 
-		self.volt_temp = None
-		self.real_temp = None
+		self.hr_data = []
+		self.br_data = []
+		self.temp_data = []
 
+		self.time_data = []
+
+		self.hr_volt = []
+		self.br_volt = []
+		self.temp_volt = []
+
+		self.start = 0
  
 		FigureCanvas.__init__(self, self.fig)
 		self.setParent(parent)
@@ -421,136 +427,102 @@ class PlotCanvas(FigureCanvas):
 				QtWidgets.QSizePolicy.Expanding)
 		FigureCanvas.updateGeometry(self)
 		self.fig.tight_layout(pad=1, w_pad=0.1, h_pad=0.1)
-		#self.plot()
- 
-	def analyzeHR(self, run=True):
-
-		self.data_hr = genfromtxt('breathdata.csv', dtype=None, delimiter=',')
-		
-		HR_ADCchan = 1
-
-		run = True 
-
-		all_data = []
-		all_hr = []
-
-		count = 0
-
-		while run: 
-
-			Value = []
-			HR = []
-
-			HR_Wave = WaveletTransform(self.data[1+count:5000+count, 1])
-			peakind = signal.find_peaks_cwt(HR_wave, np.arange(1,1000))
-
-			dist = []
+		self.count = 0
 
 
-			for i in range(length(peakind - 2)):
+		print("Initializing PlotCanvas")
 
-				dist.append(peakind[i+1] - peakind[i])
+	def crosstalk(self):
 
-			heart_rate = np.mean(1./dist)
-			self.lcd_HR.display(heart_rate)
-			all_hr.append(heart_rate)
+	    HR_iter = iter(self.hr_y)
+	    BR_iter = iter(self.br_y)
 
-			count = count + 10
-			print(count)
+	    for i in range(50):
 
-
-		self.volt_hr = all_data
-		self.real_hr = all_hr
+	        self.br_y.popleft()
+	        self.br_y.append((self.br_y[i]-self.hr_y[i]))
 
 
+	def addToBuf(self, buf, val):
 
-	def analyzeBR(self, run=True):
+		if len(buf) < self.window:
+			buf.append(val)
+		else:
+			buf.popleft()
+			buf.append(val)
 
-		BR_ADCchan = 2
+  # add data
+	def add(self, buf, volts, chan, time_check = False):
 
-		all_data = []
-		all_br = []
+		if time_check == True:
 
-		run = True 
+			self.addToBuf(buf, (self.data[self.count+1]))
 
-		while run: 
+		else:
+	
 
-			Value = []
-			BR = []
+			if chan == 0:
+			
+				self.addToBuf(buf, self.data_br[self.count+1])
 
-			for i in range(10):
-				br_level = ReadChannel(BR_ADCchan)
-				br_value = ConvertVolts(br_level, 2)
-				br = ConvertTemp(hr_level, 2)
+			if chan == 1: 
 
-				Value.append(br_value)
-				BR.append(br)
+				self.addToBuf(buf, self.data_hr[self.count+1])
 
-			all_data.append(BR)
-			BR_Wave = WaveletTransform(BR)
-			peakind = BR_Wave #signal.find_peaks_cwt(BR_wave, np.arange(1,1000))
-
-			dist = []
-
-			for i in range(length(peakind - 2)):
-
-				dist.append(peakind[i+1] - peakind[i])
-
-			breath_rate = np.mean(1./dist) 
-			print(breath_rate)
-			all_br.append(breath_rate)
-			lcd_BR.display(breath_rate)
-
-		self.volt_br = all_data
-		self.real_br = all_br
-
-
-	def analyzeTEMP(self, run=True):
-
-		Temp_ADCchan = 3
-		all_data = []
-		all_temp = []
-
-		while run: 
-
-			temp_level = ReadChannel(Temp_ADCchan)
-			temp_value = ConvertVolts(temp_level, 2)
-			temp = ConvertTemp(temp_level, 2)
-
-			all_temp.append(temp)
-			all_data.append(temp_value)
-
-			lcd_BR.display(temp)
-
-			time.sleep(5)
-
-		self.volt_temp = all_data
-		self.real_temp = all_temp
-
-
-	def plot1(self, data):
-		ax = self.figure.add_subplot(111)
-		ax.plot(data, self.color)
-		ax.set_title(self.title)
-		xtext = ax.set_xlabel('Time (s)') # returns a Text instance
-		ytext = ax.set_ylabel('Volts (mV)')
-		ax.autoscale(enable=True, axis='x', tight=True)
-
-		[m, n] = np.size(data)
-
-		for i in range(n):
-			ax.plot(data[1:i,:], self.color)
-			plt.draw()
-			plt.pause(0.05)
-
-		while True:
-			plt.pause(0.05)
-			self.draw()
+		self.count = self.count+1
 
 
 
-	def plot(self, window=50, start=0, lcd_HR, lcd_BR, lcd_TEMP):
 
+	def analyzeHR(self):
+
+		Value = []
+		HR = []
+
+
+		peakind, _ = signal.find_peaks(self.hr_y, prominence = 0.15, distance = 150)
+
+
+		dist = []
+
+
+		for i in range(len(peakind) - 2):
+
+			dist = np.append(dist ,(peakind[i+1] - peakind[i])/1000)
+
+		heart_rate = np.mean(60/np.array(dist)) 
+		self.hr_data.append(heart_rate)
+
+		return heart_rate
+
+
+
+		# see if you need to charge the GPIO channels before sampling 
+
+	def analyzeBR(self):
+
+
+		Value = []
+		BR = []
+
+		peakind, _ = signal.find_peaks(self.br_y, prominence = 0.30, distance = 500) #300 
+
+		dist = []
+		for i in range(len(peakind) - 2):
+
+			dist = np.append(dist, (peakind[i+1] - peakind[i])/1000)
+
+		breath_rate = np.mean(60/np.array(dist))
+		self.br_data.append(breath_rate)
+
+		print(peakind)
+
+		return breath_rate
+
+
+	def plot(self, lcd_HR, lcd_BR, lcd_TEMP, window=50, start=0):
+
+		self.start = time.time()
 
 		self.window = window 
 		self.HR.set_title('Heart Rate')
@@ -564,46 +536,127 @@ class PlotCanvas(FigureCanvas):
 		ytext_br = self.BR.set_ylabel('Volts (V)')
 
 		xtext_temp = self.Temp.set_xlabel('Time (s)') # returns a Text instance
-		ytext_temp = self.Temp.set_ylabel('Temperature (C)')
+		ytext_temp = self.Temp.set_ylabel('Volts (V)')
 
-		line_hr, = self.HR.plot(self.data[1:self.window] ,self.data_hr[1:self.window], '-g')
-		line_br, = self.BR.plot(self.data[1:self.window] ,self.data_br[1:self.window], '-c')
-		line_temp, = self.Temp.plot(self.data[1:self.window] ,self.data_temp[1:self.window], '-r')
+		line_hr, = self.HR.plot(self.x ,self.hr_y, '-g')
+		line_br, = self.BR.plot(self.x ,self.br_y,  '-c')
+		line_temp, = self.Temp.plot(self.x, self.temp_y, '-r')
 
 		self.fig.canvas.draw_idle()
 		self.fig.canvas.flush_events()
 
-		plt.pause(0.05)
+		count = 0;
 
 	
-		for i in range(len(self.data)):
-			self.HR.set_ylim(min(self.data_hr[i:self.window+i]), max(self.data_hr[i:self.window+i]))
-			self.HR.set_xlim(min(self.data[i:self.window+i]), max(self.data[i:self.window+i]))
-			line_hr.set_data(self.data[i:self.window+i], self.data_hr[i:self.window+i])
+		while True:
 
-			self.BR.set_ylim(min(self.data_br[i:self.window+i]), max(self.data_br[i:self.window+i]))
-			self.BR.set_xlim(min(self.data[i:self.window+i]), max(self.data[i:self.window+i]))
-			line_br.set_data(self.data[i:self.window+i], self.data_br[i:self.window+i])
+			diff = time.time()
 
-			self.Temp.set_ylim(min(self.data_temp[i:self.window+i]), max(self.data_temp[i:self.window+i]))
-			self.Temp.set_xlim(min(self.data[i:self.window+i]), max(self.data[i:self.window+i]))
-			line_temp.set_data(self.data[i:self.window+i], self.data_temp[i:self.window+i])
+			lcd_BR.setSegmentStyle(QLCDNumber.Flat)
+			lcd_TEMP.setSegmentStyle(QLCDNumber.Flat)
+
+
+
+			current_hr = self.analyzeHR()
+			current_br = self.analyzeBR()
+
+
+			lcd_HR.display(current_hr)
+			lcd_BR.display(current_br)
+
+
+
+			for i in range(500):
+
+				self.add(self.x, self.time_data, 0, time_check = True)
+				self.add(self.hr_y, self.hr_volt, 0)
+				self.add(self.br_y, self.br_volt, 1)
+
+			#self.crosstalk()
+
+			self.HR.set_ylim(min(self.hr_y), max(self.hr_y))
+			self.HR.set_xlim(min(self.x), max(self.x))
+			line_hr.set_data(self.x, self.hr_y)
+
+			self.BR.set_ylim(min(self.br_y), max(self.br_y))
+			self.BR.set_xlim(min(self.x), max(self.x))
+			line_br.set_data(self.x, self.br_y)
+
+
+			self.Temp.set_ylim(min(self.temp_y), max(self.temp_y))
+			self.Temp.set_xlim(min(self.x), max(self.x))
+			line_temp.set_data(self.x, self.temp_y)
 
 
 			self.fig.canvas.draw_idle()
 			
 
 			self.fig.canvas.flush_events()
+
 			plt.show()
-			plt.pause(0.05)
-			self.current_time = i
+
+			
+
+			self.current_time = time.time()
+
+			print("Time to loop")
+
+			print(diff - self.current_time)
+
+			count = count + 1
 
 		plt.show()
 
 
+class PID:
 
 
+	def __init__(self, P=2.0, I=0.0, D=1.0, Derivator=0, Integrator=0, Integrator_max=500, Integrator_min=-500):
 
+		self.Kp=P
+		self.Ki=I
+		self.Kd=D
+		self.Derivator=Derivator
+		self.Integrator=Integrator
+		self.Integrator_max=Integrator_max
+		self.Integrator_min=Integrator_min
+
+		self.set_point=0.0
+		self.error=0.0
+
+		print("Initializing PID")
+
+	def update(self,current_value):
+		"""
+		Calculate PID output value for given reference input and feedback
+		"""
+
+		self.error = self.set_point - current_value
+
+		self.P_value = self.Kp * self.error
+		self.D_value = self.Kd * ( self.error - self.Derivator)
+		self.Derivator = self.error
+
+		self.Integrator = self.Integrator + self.error
+
+		if self.Integrator > self.Integrator_max:
+			self.Integrator = self.Integrator_max
+		elif self.Integrator < self.Integrator_min:
+			self.Integrator = self.Integrator_min
+
+		self.I_value = self.Integrator * self.Ki
+
+		PID = self.P_value + self.I_value + self.D_value
+
+		return PID
+
+	def setPoint(self,set_point):
+		"""
+		Initilize the setpoint of PID
+		"""
+		self.set_point = set_point
+		self.Integrator=0
+		self.Derivator=0
 	
 		
 		
@@ -612,3 +665,4 @@ if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	ex = MainWindow()
 	sys.exit(app.exec_())
+
