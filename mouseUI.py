@@ -552,7 +552,8 @@ class PlotCanvas(FigureCanvas):
 		HR = []
 
 
-		peakind, _ = signal.find_peaks(self.hr_y, distance = 100)
+		peakind, _ = signal.find_peaks(self.hr_y, prominence = 0.15, distance = 150)
+
 
 		dist = []
 
@@ -566,6 +567,8 @@ class PlotCanvas(FigureCanvas):
 
 		return heart_rate
 
+
+
 		# see if you need to charge the GPIO channels before sampling 
 
 	def analyzeBR(self):
@@ -574,7 +577,7 @@ class PlotCanvas(FigureCanvas):
 		Value = []
 		BR = []
 
-		peakind, _ = signal.find_peaks(self.br_y, distance = 300) #300 
+		peakind, _ = signal.find_peaks(self.br_y, prominence = 0.30, distance = 500) #300 
 
 		dist = []
 		for i in range(len(peakind) - 2):
@@ -583,6 +586,8 @@ class PlotCanvas(FigureCanvas):
 
 		breath_rate = np.mean(60/np.array(dist))
 		self.br_data.append(breath_rate)
+
+		print(peakind)
 
 		return breath_rate
 
