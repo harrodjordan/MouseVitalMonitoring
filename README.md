@@ -9,3 +9,5 @@ Sponsor: Dr. Chris Schaffer, Assistant Professor of Biomedical Engineering, Corn
 Team Members: **Jordan Harrod***, Riona Reeves, Julia Telischi, Rohan Roy, Kelly Wilson 
 
 \*primary software developer 
+
+To Run: Use mouseUI.py
